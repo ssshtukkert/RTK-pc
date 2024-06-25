@@ -1,0 +1,16 @@
+<!-- <?xml version="1.0" encoding="utf-8"?>
+<splash xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:drawable="@drawable/splash"
+        android:screenOrientation="portrait"/>
+</splash> -->
+
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- <item android:drawable="@color/cdv_splashscreen_background"/> -->
+    <item>
+        <bitmap
+            android:src="C:\Users\sshtukkert\lastTest1\src-cordova\res\drawable\splash\splash.png"
+            android:gravity="center"/>
+    </item>
+</layer-list>

@@ -1,0 +1,13 @@
+{
+  "android": {
+      "release": {
+        "keystore": "../nevatom.keystore",
+        "storePassword": "111111",
+        "alias": "nevatom",
+        "password" : "111111",
+        "keystoreType": "",
+        "packageType": "apk"
+      }
+  }
+}
+

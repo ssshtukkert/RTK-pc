@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="org.cordova.quasar3.app" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>НЕВАТОМ</name>
+    <description>A Quasar Project</description>
+    <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
+        Apache Cordova Team
+    </author>
+    <content src="index.html" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <preference name="scheme" value="http" />
+    <allow-navigation href="about:*" />
+    <platform name="android">
+        <preference name="SplashScreenIconShape" value="rectangle" />
+        <preference name="AndroidWindowSplashScreenAnimatedIcon" value="C:\Users\sshtukkert\NEVATOM\src-cordova\res\screen\android\noname.png" />
+        <icon src="res/icon/android/icon.png" />
+    </platform>
+</widget>
