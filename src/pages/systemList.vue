@@ -4,7 +4,7 @@
     class="bg-grey-9 text-white"
     id="mainLayout"
   >
-    <span v-if="isSpinner" class="loader"></span>
+    <!-- <span v-if="isSpinner" class="loader"></span> -->
     <!-- Выбор системы мониторинга -->
     <div style="height: auto">
       <q-label
@@ -553,6 +553,7 @@
   </q-layout>
 </template>
 <script setup>
+
 import { ref, onMounted, onBeforeMount, inject, provide } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Paho from "paho-mqtt";

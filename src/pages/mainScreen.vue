@@ -4,7 +4,7 @@
     class="bg-grey-9 text-white"
     id="mainLayout"
   >
-    <span v-if="isSpinner" class="loader"></span>
+    <!-- <span v-if="isSpinner" class="loader"></span> -->
 
     <!-- Уставки -->
     <q-scroll-area v-if="!schedulePage && !settingsPage" style="height: 85vh">
@@ -75,7 +75,7 @@
         <q-card
           v-if="ERR.val != ''"
           class="my-card-dark cardMonocolor"
-          style="border-radius: 15px"
+          style="border-radius: 15px; margin-top: 20px"
         >
           <q-card-section style="background-color: #ff6f24; margin-top: -10px">
             <div class="cardInside">
@@ -145,7 +145,7 @@
         <q-card
           v-if="!SW_TABLE.val"
           :class="computedClass"
-          style="border-radius: 15px"
+          style="border-radius: 15px; margin-bottom: 60px"
         >
           <q-toolbar style="background-color: #ff6f24; color: white">
             <img
@@ -563,7 +563,7 @@
       </div>
     </q-scroll-area>
 
-    <q-dialog
+    <!-- <q-dialog
       style="backdrop-filter: blur(2px)"
       v-model="spinnerActive"
       :persistent="isPromise"
@@ -581,7 +581,7 @@
           Отправка данных
         </div>
       </div>
-    </q-dialog>
+    </q-dialog> -->
     <!-- Расписание -->
 
     <q-scroll-area
@@ -749,7 +749,7 @@
                   () => {
                     prepared = T_TIME_1.val;
                     isPromise = true;
-                    spinnerActive = true;
+                    // spinnerActive = true;
                     writeScheduleSetMultiple(T_TIME_1, prepared);
                   }
                 "
@@ -1820,7 +1820,7 @@
               <q-input
                 v-model="WIFI_AP_SSID.val"
                 dense
-                style="width: auto; font-size: 16px"
+                style="width: auto; font-size: 16px; margin-left: 8px"
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -1931,7 +1931,7 @@
               <q-input
                 v-model="WIFI_SSID.val"
                 dense
-                style="width: auto; font-size: 16px"
+                style="width: auto; font-size: 16px; margin-left: 10px"
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -1964,7 +1964,7 @@
               <q-input
                 v-model="WIFI_PASS.val"
                 dense
-                style="width: auto; font-size: 16px"
+                style="width: auto; font-size: 16px; margin-left: 10px"
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -1997,7 +1997,7 @@
               <q-input
                 v-model="MQTT_HOST.val"
                 dense
-                style="width: auto; font-size: 16px"
+                style="width: auto; font-size: 16px; margin-left: 10px"
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -2030,7 +2030,7 @@
               <q-input
                 v-model="MQTT_PORT.val"
                 dense
-                style="width: auto; font-size: 16px"
+                style="width: auto; font-size: 16px; margin-left: 10px"
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -2063,7 +2063,7 @@
               <q-input
                 v-model="MQTT_PREFIX.val"
                 dense
-                style="width: auto; font-size: 16px"
+                style="width: auto; font-size: 16px; margin-left: 10px"
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -2096,7 +2096,7 @@
               <q-input
                 v-model="MQTT_USER.val"
                 dense
-                style="width: auto; font-size: 16px"
+                style="width: auto; font-size: 16px; margin-left: 10px"
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -2129,7 +2129,7 @@
               <q-input
                 v-model="MQTT_PASS.val"
                 dense
-                style="width: auto; font-size: 16px"
+                style="width: auto; font-size: 16px; margin-left: 10px"
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -2267,8 +2267,26 @@
 </template>
 
 <script setup>
+
+
 import { ref, onMounted, onBeforeMount, inject, provide } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useQuasar } from 'quasar';
+
+const $q = useQuasar()
+$q.loading.show({
+    delay: 200 // ms
+  })
+// function wait(period){
+//   $q.loading.show({
+//     delay: 200 // ms
+//   })
+//   setTimeout(() => {
+//     $q.loading.hide()
+//   }, period)
+// }
+
+
 
 import mitt from "mitt";
 // import bonjour from 'bonjour';
@@ -2278,7 +2296,7 @@ const systems = ref([]);
 
 const bus = inject("bus");
 bus.on("themeChanged", (themeValue) => {
-  console.log("changed");
+  // console.log("changed");
   redoColor();
 });
 
@@ -2288,15 +2306,15 @@ import Paho from "paho-mqtt";
 // import ssdp from '@achingbrain/ssdp';
 // const ssdpbus = ssdp();
 
-const spinnerActive = ref(true);
+// const spinnerActive = ref(true);
 // 88B0BF3BDAEC 5882A10CDADC 5882A10CDADC
 // E4ACBF3BDAEC
 const route = useRoute();
 const { SN, host, port, name, mode } = route.params;
 
-console.log(typeof SN, typeof host, port);
+// console.log(typeof SN, typeof host, port);
 const rtkSerialNum = ref("");
-console.log(Paho);
+// console.log(Paho);
 const myMsg = ref(0);
 const rtkArray = ref([]);
 const parsedMessage = ref();
@@ -2321,7 +2339,7 @@ const authPage = ref(true);
 const settingsPage = ref(false);
 const computedClass = ref("my-card-dark");
 const darkThemeMq = ref();
-const isSpinner = ref(false);
+// const isSpinner = ref(false);
 const stopRefresh = ref(false);
 const labelColor = ref("text-white");
 const mainColor = ref("white");
@@ -2715,7 +2733,7 @@ const message = ref("");
 // let myClient = new Paho.Client("test.mosquitto.org", Number(8080), "/ws"); // работает с телефона в режиме станции
 // let myClient = new Paho.Client(`RTK-${SN}`, Number(8080), "/ws"); // в режиме точки доступа, работает с компа
 
-console.log(host, port);
+// console.log(host, port);
 // let myClient = new Paho.Client(host, Number(port), "/ws"); // в режиме точки доступа, работает с компа и с телефона
 let myClient = new Paho.Client(
   host,
@@ -2725,7 +2743,8 @@ let myClient = new Paho.Client(
 myClient.connect({ onSuccess: onConnect, onFailure: onFailure, timeout: 6000 });
 
 function onFailure() {
-  spinnerActive.value = false;
+  $q.loading.hide();
+  // spinnerActive.value = false;
   router.replace("/");
 }
 
@@ -2734,7 +2753,7 @@ function changeMode() {
     ? JSON.parse(localStorage.getItem("systems"))
     : [];
   if (port == 8883) {
-    console.log(MQTT_HOST.value.val);
+    // console.log(MQTT_HOST.value.val);
     let existingSystemIndex;
     let newObj = {
       Name: name,
@@ -2743,13 +2762,13 @@ function changeMode() {
       Port: 8080,
       Connection: "Станция (онлайн)",
     };
-    console.log(newObj);
+    // console.log(newObj);
     if (systems.value) {
       existingSystemIndex = systems.value.findIndex(
         (system) =>
           system.SN == newObj.Number && system.mode == newObj.Connection
       );
-      console.log(existingSystemIndex);
+      // console.log(existingSystemIndex);
       if (existingSystemIndex == -1) {
         systems.value.push({
           name: newObj.Name,
@@ -2760,7 +2779,7 @@ function changeMode() {
         });
         localStorage.setItem("systems", JSON.stringify(systems.value));
 
-        console.log(systems.value);
+        // console.log(systems.value);
       }
     }
   }
@@ -2774,7 +2793,7 @@ function changeMode() {
 myClient.onMessageArrived = (message) => {
   recievedMessage.value = JSON.parse(message.payloadString);
   if (recievedMessage.value.topic == `/IoTmanager/RTK-${SN}/config`) {
-    console.log(recievedMessage.value);
+    // console.log(recievedMessage.value);
   }
   try {
     if (message.topic == `/IoTmanager/RTK-${SN}/config`) {
@@ -2796,13 +2815,13 @@ myClient.onMessageArrived = (message) => {
             if (`${obj.value.topic}/status` == message.topic) {
               obj.value.val = recievedMessage.value.status;
               if (obj.value.topic == `/IoTmanager/RTK-${SN}/TCANCEL`) {
-                console.log(recievedMessage.value);
+                // console.log(recievedMessage.value);
                 obj.value.val = recievedMessage.value.status;
                 confirm.value = true;
               }
               if (isNumber(recievedMessage.value.status)) {
                 if (obj.value.topic == `/IoTmanager/RTK-${SN}/SW_TABLE`) {
-                  console.log("sw table");
+                  // console.log("sw table");
                 }
                 if (
                   obj.value.topic == `/IoTmanager/RTK-${SN}/SW_TABLE` ||
@@ -2859,15 +2878,15 @@ myClient.onMessageArrived = (message) => {
                       parseInt(recievedMessage.value.status)
                     ];
                 } else if (obj.value.topic == `/IoTmanager/RTK-${SN}/T_WDAY`) {
-                  console.log(recievedMessage.value.status);
+                  // console.log(recievedMessage.value.status);
                   if (
                     weekDays.value[parseInt(recievedMessage.value.status)] == ""
                   ) {
-                    console.log("empty");
+                    // console.log("empty");
                   }
                   obj.value.val =
                     weekDays.value[parseInt(recievedMessage.value.status)];
-                  console.log(obj.value.val);
+                  // console.log(obj.value.val);
                   // if (T_MODE.value.val == 'ОФИС' || T_MODE.value.val == 'РАБОЧАЯ НЕДЕЛЯ'){
                   //   if (obj.value.val == 'СБ' || obj.value.val == 'ВС' ){
                   //   weekDayWW.value = 'Выходные'
@@ -2883,12 +2902,13 @@ myClient.onMessageArrived = (message) => {
                   obj.value.val =
                     weekDays.value[parseInt(recievedMessage.value.status)];
                 } else if (obj.value.topic == `/IoTmanager/RTK-${SN}/ERR`) {
-                  if (recievedMessage.value.status == "FAULT: OVERHEAT") {
-                    obj.value.val = "Авария: термоконтакт!";
-                  }
-                  if (recievedMessage.value.status == "FAULT: HEATER") {
-                    obj.value.val = "Авария: нагреватель!";
-                  }
+                  obj.value.val = recievedMessage.value.status;
+                  // if (recievedMessage.value.status == "FAULT: OVERHEAT") {
+                  //   obj.value.val = "Авария: термоконтакт!";
+                  // }
+                  // if (recievedMessage.value.status == "FAULT: HEATER") {
+                  //   obj.value.val = "Авария: нагреватель!";
+                  // }
                 } else {
                   obj.value.val = parseInt(recievedMessage.value.status);
                 }
@@ -2927,7 +2947,7 @@ function sendMessage(payload, destination) {
   }
 }
 function disconnectMqtt() {
-  console.log("disconnect mqtt");
+  // console.log("disconnect mqtt");
   if (myClient) {
     try {
       myClient.unsubscribe("#");
@@ -2940,7 +2960,7 @@ function disconnectMqtt() {
 }
 let counter = 0;
 function connectMqtt() {
-  console.log("connect mqtt");
+  // console.log("connect mqtt");
   disconnectMqtt();
   myClient = new Paho.Client(
     host,
@@ -2952,15 +2972,15 @@ function connectMqtt() {
   myClient.connect({ onSuccess: onConnect });
 }
 function onConnectionLost(responseObject) {
-  console.log("connection lost");
+  // console.log("connection lost");
   if (responseObject.errorCode !== 0) {
     counter++;
     if (counter > 5) {
-      console.log("Failed to connect to MQTT server after 10 attempts.");
+      // console.log("Failed to connect to MQTT server after 10 attempts.");
       counter = 0;
       router.replace("/");
     } else {
-      console.log("Connection lost. Attempting to reconnect...");
+      // console.log("Connection lost. Attempting to reconnect...");
       setTimeout(connectMqtt, 2000);
     }
   }
@@ -2981,15 +3001,16 @@ myClient.onConnected = () => {
     if (counter < 3) {
       sendMessage("HELLO", "/IoTmanager");
     } else {
-      spinnerActive.value = false;
+      $q.loading.hide()
+      // spinnerActive.value = false;
       clearInterval(test);
     }
   }, 2000);
 
-  console.log("on connected");
+  // console.log("on connected");
 };
 function onConnect() {
-  console.log("Mqtt connected");
+  // console.log("Mqtt connected");
   sendMessage("HELLO", "/IoTmanager");
 }
 
@@ -3079,10 +3100,10 @@ function openSchedule() {
 
 onBeforeMount(() => {
   var platform = navigator.userAgent;
-  console.log(platform);
+  // console.log(platform);
   const isNew = localStorage.getItem("added");
-  console.log(isNew == null);
-  isSpinner.value = false;
+  // console.log(isNew == null);
+  // isSpinner.value = false;
 });
 
 const response = ref(null);
@@ -3090,7 +3111,7 @@ const response = ref(null);
 // Запись в РТК
 
 function writeSet(target) {
-  console.log(target);
+  // console.log(target);
   sendMessage(JSON.stringify(target.val), `${target.topic}/control`);
   // client.publish(`${target.topic}/control`, JSON.stringify(target.val));
   submitted.value = false;
@@ -3105,17 +3126,17 @@ function reloadBtnPressed(target) {
 function writeScheduleSet(target) {
   sendMessage(target.val, `${target.topic}/control`);
   target.blocked = false;
-  console.log(target);
+  // console.log(target);
 }
 function chooseFromList(target, dictionary) {
-  console.log(target);
-  console.log(dictionary.indexOf(target.val));
+  // console.log(target);
+  // console.log(dictionary.indexOf(target.val));
   sendMessage(
     JSON.stringify(dictionary.indexOf(target.val)),
     `${target.topic}/control`
   );
   target.blocked = false;
-  console.log(target);
+  // console.log(target);
 }
 
 function writeScheduleSetMultiple(target, val) {
@@ -3123,50 +3144,60 @@ function writeScheduleSetMultiple(target, val) {
   if (T_MODE.value.val == "ИНДИВИДУАЛЬНАЯ") {
     sendMessage(target.val, `${target.topic}/control`);
     target.blocked = false;
-    console.log(target);
+    // console.log(target);
   }
 
   if (T_MODE.value.val == "ВСЕ ВРЕМЯ ДОМА") {
     isPromise.value = true;
-    spinnerActive.value = true;
+    $q.loading.show({
+      delay: 200 // ms
+    })
+    // spinnerActive.value = true;
     target.blocked = false;
     promiseMess(2000, 7, target, val, 0).then(() => {
-      spinnerActive.value = false;
+      // spinnerActive.value = false;
+      $q.loading.hide()
       isPromise.value = false;
-      console.log("Все итерации завершены");
+      // console.log("Все итерации завершены");
     });
   }
   if (T_MODE.value.val == "РАБОЧАЯ НЕДЕЛЯ" || T_MODE.value.val == "ОФИС") {
     isPromise.value = true;
-    spinnerActive.value = true;
+    // spinnerActive.value = true;
+    $q.loading.show({
+      delay: 200 // ms
+    })
     if (weekDayWW.value == "Будни") {
       promiseMess(2000, 6, target, val, 1).then(() => {
-        spinnerActive.value = false;
+        // spinnerActive.value = false;
+        $q.loading.hide()
         isPromise.value = false;
-        console.log("Все итерации завершены");
+        // console.log("Все итерации завершены");
       });
     }
 
     if (weekDayWW.value == "Выходные") {
       setTimeout(() => {
-        console.log(`Выходные`);
-        console.log(val);
+        // console.log(`Выходные`);
+        // console.log(val);
         sendMessage(JSON.stringify(0), `/IoTmanager/RTK-${SN}/T_WDAY/control`);
         setTimeout(() => {
           sendMessage(val, `${target.topic}/control`);
-          spinnerActive.value = false;
+          // spinnerActive.value = false;
+          // $q.loading.hide()
           isPromise.value = false;
           // resolve();
         }, 1000);
       }, 2000);
 
       setTimeout(() => {
-        console.log(`Выходные`);
-        console.log(val);
+        // console.log(`Выходные`);
+        // console.log(val);
         sendMessage(JSON.stringify(6), `/IoTmanager/RTK-${SN}/T_WDAY/control`);
         setTimeout(() => {
           sendMessage(val, `${target.topic}/control`);
-          spinnerActive.value = false;
+          $q.loading.hide()
+          // spinnerActive.value = false;
           isPromise.value = false;
         }, 4000);
       }, 6000);
@@ -3215,7 +3246,10 @@ function toggle(target, dict) {
 
     if (T_MODE.value.val == "ВСЕ ВРЕМЯ ДОМА") {
       isPromise.value = true;
-      spinnerActive.value = true;
+      $q.loading.show({
+        delay: 200 // ms
+      })
+      // spinnerActive.value = true;
       if (target.val == true) {
         preparedValue = 1;
       } else {
@@ -3223,9 +3257,10 @@ function toggle(target, dict) {
       }
       promiseMess(2000, 7, target, JSON.stringify(preparedValue), 0).then(
         () => {
-          spinnerActive.value = false;
+          $q.loading.hide()
+          // spinnerActive.value = false;
           isPromise.value = false;
-          console.log("Все итерации завершены");
+          // console.log("Все итерации завершены");
         }
       );
       target.blocked = false;
@@ -3233,8 +3268,11 @@ function toggle(target, dict) {
 
     if (T_MODE.value.val == "РАБОЧАЯ НЕДЕЛЯ" || T_MODE.value.val == "ОФИС") {
       isPromise.value = true;
-      spinnerActive.value = true;
-      console.log(weekDayWW.value);
+      // spinnerActive.value = true;
+      $q.loading.show({
+        delay: 200 // ms
+      })
+      // console.log(weekDayWW.value);
       if (target.val == true) {
         preparedValue = 1;
       } else {
@@ -3243,16 +3281,17 @@ function toggle(target, dict) {
       if (weekDayWW.value == "Будни") {
         promiseMess(2000, 6, target, JSON.stringify(preparedValue), 1).then(
           () => {
-            spinnerActive.value = false;
+            $q.loading.hide()
+            // spinnerActive.value = false;
             isPromise.value = false;
-            console.log("Все итерации завершены");
+            // console.log("Все итерации завершены");
           }
         );
       }
 
       if (weekDayWW.value == "Выходные") {
         setTimeout(() => {
-          console.log(`Выходные`);
+          // console.log(`Выходные`);
           sendMessage(
             JSON.stringify(0),
             `/IoTmanager/RTK-${SN}/T_WDAY/control`
@@ -3262,13 +3301,13 @@ function toggle(target, dict) {
               JSON.stringify(preparedValue),
               `${target.topic}/control`
             );
-            spinnerActive.value = false;
+            // spinnerActive.value = false;
             isPromise.value = false;
           }, 1000);
         }, 2000);
 
         setTimeout(() => {
-          console.log(`Выходные`);
+          // console.log(`Выходные`);
           sendMessage(
             JSON.stringify(6),
             `/IoTmanager/RTK-${SN}/T_WDAY/control`
@@ -3278,7 +3317,8 @@ function toggle(target, dict) {
               JSON.stringify(preparedValue),
               `${target.topic}/control`
             );
-            spinnerActive.value = false;
+            $q.loading.hide()
+            // spinnerActive.value = false;
             isPromise.value = false;
           }, 4000);
         }, 6000);
@@ -3303,14 +3343,14 @@ function promiseMess(time, iterations, target, val, start) {
     promise = promise.then(() => {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
-          console.log(`first ${i}`);
-          console.log(val);
+          // console.log(`first ${i}`);
+          // console.log(val);
           sendMessage(
             JSON.stringify(i),
             `/IoTmanager/RTK-${SN}/T_WDAY/control`
           );
           setTimeout(() => {
-            console.log(`second ${i}`);
+            // console.log(`second ${i}`);
             sendMessage(val, `${target.topic}/control`);
             resolve();
           }, 1000);
@@ -3323,7 +3363,7 @@ function promiseMess(time, iterations, target, val, start) {
 }
 
 onBeforeMount(() => {
-  isSpinner.value = false;
+  // isSpinner.value = false;
 });
 onMounted(() => {
   let el = document.createElement('div');
@@ -3340,14 +3380,14 @@ onMounted(() => {
 //     erudaElement.style.display = 'none';
 //   }
 // });
-  console.log(mode);
+  // console.log(mode);
   darkThemeMq.value = window.matchMedia("(prefers-color-scheme: light)");
   redoColor();
 });
 
 function redoColor() {
   let a = localStorage.getItem("isDark");
-  console.log(a);
+  // console.log(a);
   const changeable = ref(document.getElementById("mainLayout"));
   if (!a) {
     isDark.value = false;
@@ -3384,7 +3424,7 @@ const submitted = ref(false); // нажата кнопка "подтвердит
 function waitForSubmit(target) {
   setTimeout(() => {
     target.blocked = false;
-    console.log("reset");
+    // console.log("reset");
     sendMessage("HELLO", "/IoTmanager");
     submitted.value = false;
   }, 5000);
@@ -3487,7 +3527,7 @@ function waitForSubmit(target) {
   color: rgb(223, 223, 223);
 }
 
-.loader {
+/* .loader {
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -3538,12 +3578,11 @@ function waitForSubmit(target) {
 .button__progress {
   position: absolute;
   height: 100%;
-  /* width: 0%; */
 
   border-radius: 25px;
   top: 0;
   left: 0;
   background: rgba(0, 0, 0, 0.2);
-  /* transition: width 0.3s; */
-}
+  /* transition: width 0.3s;
+} */
 </style>
