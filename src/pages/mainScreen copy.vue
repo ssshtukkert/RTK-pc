@@ -1,17 +1,32 @@
 <template style="height: 800px">
   <q-layout
-    style="padding-bottom: 15px"
-    class="bg-grey-9 text-white"
+    style="padding-bottom: 15px; font-family: 'HelveticaRegular'"
+    class=" text-white"
     id="mainLayout"
   >
-    <!-- <span v-if="isSpinner" class="loader"></span> -->
+<div v-if="PullToRefresh" id="mainLayout" style="
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding-top: 10px;
+    left:0px;
+    width:100vw;">
+
+  <q-spinner
+
+    color="orange-9"
+    size="3em"
+  />
+
+  </div>
 
     <!-- Уставки -->
     <q-scroll-area v-if="!schedulePage && !settingsPage" style="height: 85vh">
+
       <q-dialog v-model="confirm">
-        <q-card :class="computedClass" style="border-radius: 15px">
+        <q-card :class="computedClass" style="border-radius: 15px" class="cardManCircle">
           <q-toolbar style="justify-content: space-between">
-            <div></div>
+
             <div
               style="
                 display: flex;
@@ -21,17 +36,16 @@
                 width: 100%;
               "
             >
-              <div style="color: white"><b>Применить изменения?</b></div>
+              <div :dark="isDark"><b>Применить изменения?</b></div>
             </div>
           </q-toolbar>
           <q-card-section
             style="display: flex; justify-content: center; margin-top: -20px"
           >
             <q-btn
-              color="orange-9"
               rounded
               label="OK"
-              style="margin-right: 10px"
+              style="margin-right: 10px; background-color: #ed6c05; color: white"
               v-close-popup
               @click="
                 () => {
@@ -41,7 +55,7 @@
               "
             />
             <q-btn
-              color="teal-7"
+              style="background-color: #878787; color: white"
               rounded
               label="Отмена"
               @click="
@@ -60,7 +74,7 @@
         <q-label
           style="
             padding: 10px;
-            font-family: 'Roboto', sans-serif;
+            font-family: 'HelveticaRegular';
             font-size: 20px;
             display: flex;
             justify-content: center;
@@ -77,7 +91,7 @@
           class="my-card-dark cardMonocolor"
           style="border-radius: 15px; margin-top: 20px"
         >
-          <q-card-section style="background-color: #ff6f24; margin-top: -10px">
+          <q-card-section style="background-color: #ed6c05; margin-top: -10px">
             <div class="cardInside">
               <div style="margin-right: 10px; width: 100%">
                 <div class="cardText">
@@ -91,9 +105,10 @@
         </q-card>
 
         <q-card :class="computedClass" style="border-radius: 15px"
-          ><q-toolbar style="background-color: #ff6f24; color: white"
+          ><q-toolbar style="background-color: #ed6c05;"
             ><q-label
-              style="word-wrap: break-word; font-size: 16px; font-weight: 700"
+              style="word-wrap: break-word; font-size: 16px; font-weight: 700; color: white;"
+
               >Управление</q-label
             ></q-toolbar
           >
@@ -103,8 +118,15 @@
                 class="settingsInside"
                 style="margin-right: 10px; width: 100%"
               >
-                <div>Режим АВТО</div>
+              <div style="display: flex; flex-direction: row; align-items: center">
+                <div>Работа по расписанию</div>
+                <q-btn flat style="background: none; width: 18px" @click="() =>{
+                  showAdviceForSchedule = true;
+                }"><img v-if="isDark" src="../components/images/question-svgrepo-com.svg" style="height: 18px;"><img v-if="!isDark" src="../components/images/question-svgrepo-com (1).svg" style="height: 18px;"></q-btn>
+              </div>
+
                 <q-toggle
+                  size="lg"
                   @click="toggle(SW_TABLE)"
                   color="orange-9"
                   v-model="SW_TABLE.val"
@@ -116,9 +138,16 @@
                 class="settingsInside"
                 style="margin-right: 10px; width: 100%"
               >
-                <div>Вентиляция</div>
+              <div style="display: flex; flex-direction: row; align-items: center">
+                <div>Включение/отключение RТК</div>
+                <q-btn flat style="background: none; width: 18px" @click="() =>{
+                  showAdviceForRtk = true;
+                }"><img v-if="isDark" src="../components/images/question-svgrepo-com.svg" style="height: 18px;"><img v-if="!isDark" src="../components/images/question-svgrepo-com (1).svg" style="height: 18px;"></q-btn>
+              </div>
+
 
                 <q-toggle
+                size="lg"
                   @click="toggle(SW_FAN)"
                   color="orange-9"
                   v-model="SW_FAN.val"
@@ -130,9 +159,16 @@
                 class="settingsInside"
                 style="margin-right: 10px; width: 100%"
               >
-                <div>Нагреватель</div>
+              <div style="display: flex; flex-direction: row; align-items: center">
+                <div>Разреш. работы нагревателя</div>
+                <q-btn flat style="background: none; width: 18px" @click="() =>{
+                  showAdviceForHeater = true;
+                }"><img v-if="isDark" src="../components/images/question-svgrepo-com.svg" style="height: 18px;"><img v-if="!isDark" src="../components/images/question-svgrepo-com (1).svg" style="height: 18px;"></q-btn>
+              </div>
+
 
                 <q-toggle
+                  size="lg"
                   @click="toggle(SW_HEATER)"
                   color="orange-9"
                   v-model="SW_HEATER.val"
@@ -143,72 +179,70 @@
         </q-card>
 
         <q-card
-          v-if="!SW_TABLE.val"
+
           :class="computedClass"
           style="border-radius: 15px; margin-bottom: 60px"
         >
-          <q-toolbar style="background-color: #ff6f24; color: white">
-            <div>
+          <q-toolbar style="background-color: #ed6c05; ">
+            <div :class="selectClass" style="height: 60px; ">
               <img
               src="../components/images/temperature.svg"
               alt=""
-              style="height: 45px; margin: 10px"
+              style="height: 45px; margin: 10px; "
               @click="
                 () => {
+                  selectClass = 'underline';
+                  selectClass1 = 'no-underline';
+                  selectClass2 = 'no-underline';
                   isTemp = true;
                   isFan = false;
                   isHum = false;
-                  console.log(isTemp, isFan, isHum)
                 }
               "
             />
             </div>
-            <div>
+            <div :class="selectClass1" style="height: 60px; ">
               <img
               src="../components/images/fan.svg"
               alt=""
               style="height: 45px; margin: 10px"
               @click="
                 () => {
+                  selectClass = 'no-underline';
+                  selectClass1 = 'underline';
+                  selectClass2 = 'no-underline';
                   isTemp = false;
                   isFan = true;
                   isHum = false;
-                  console.log(isTemp, isFan, isHum)
                 }
               "
             />
             </div>
-
-            <img
+            <div :class="selectClass2" style="height: 60px; ">
+              <img
               src="../components/images/humdity.svg"
               alt=""
               style="height: 45px; margin: 10px"
               v-if="gotHumdity"
               @click="
                 () => {
+                  selectClass = 'no-underline';
+                  selectClass1 = 'no-underline';
+                  selectClass2 = 'underline';
                   isTemp = false;
                   isFan = false;
                   isHum = true;
                 }
               "
             />
+            </div>
+
           </q-toolbar>
 
 
           <q-card-section v-if="isTemp">
             <div style="margin-bottom: 8px">
-              <div
-                class="settingsInside"
-                style="margin-right: 10px; width: 100%"
-              >
-                <div>Уставка температуры</div>
-
-                <div style="font-weight: 700; margin-right: 10px">
-                  {{ RANGE_TEMP.val }}°С
-                </div>
-              </div>
-            </div>
-            <div style="margin-bottom: 8px">
+              <div style="margin-bottom: 8px">
               <div
                 class="settingsInside"
                 style="margin-right: 10px; width: 100%"
@@ -219,8 +253,21 @@
                   {{ T10.val }}°С
                 </div>
               </div>
+
             </div>
-            <!-- <div class="settingsInside" style="margin-right: 10px; width: 100%"> -->
+              <div
+                class="settingsInside"
+                style="margin-right: 10px; width: 100%"
+              >
+                <div>Уставка температуры</div>
+
+                 <div style="font-weight: 700; margin-right: 10px">
+                  {{ RANGE_TEMP.val }}°С
+                </div>
+              </div>
+
+            </div>
+
             <q-dialog persistent v-if="showWindowForTemp" v-model="showWindowForTemp">
               <q-card
                 class="cardManCircle"
@@ -250,7 +297,7 @@
                 >
                   <q-btn
                     style="
-                      background-color: #00897b;
+                      background-color: #ed6c05;
                       color: white;
                       height: 15px;
                       margin-top: 10px;
@@ -275,7 +322,7 @@
                       }
                     "
                     style="
-                      background-color: #626262;
+                      background-color: #878787;
                       color: white;
                       height: 15px;
                       margin-top: 10px;
@@ -288,8 +335,8 @@
               </q-card>
             </q-dialog>
             <div class="cardManCircle">
-              <q-knob
-                @touchstart="
+
+              <q-slider @touchstart="
                   () => {
                     RANGE_TEMP.blocked = true;
                     waitForSubmit(RANGE_TEMP);
@@ -300,33 +347,11 @@
                     showWindowForTemp = true;
                   }
                 "
-                v-model="RANGE_TEMP.val"
-                show-value
-                :min="5"
-                :max="35"
-                size="150px"
-                font-size="30px"
-                :thickness="0.35"
-                color="orange-9"
-                track-color="teal-7"
-                :dark="isDark"
-                class="q-ma-md"
-                >{{ RANGE_TEMP.val }}°С</q-knob
-              >
-              <!-- <q-btn
-              @click="
-                () => {
-                  submitted = true;
-                  writeSet(RANGE_TEMP);
-                  RANGE_TEMP.blocked = false;
-                }
-              "
-              label="Подтвердить ввод"
-              rounded
-            /> -->
-            </div>
+                v-if="!SW_TABLE.val"
+                v-model="RANGE_TEMP.val" :min="0" :max="35" color="orange-9" track-color="grey-5" thumb-size="25px" track-size="10px" :marker-labels="fnMarkerLabel" label-always style="margin-top: 30px"
+                />
 
-            <!-- </div> -->
+            </div>
           </q-card-section>
 
           <q-card-section v-if="isFan">
@@ -343,8 +368,8 @@
               </div>
             </div>
             <div class="cardManCircle">
-              <q-knob
-                @touchstart="
+
+              <q-slider @touchstart="
                   () => {
                     RANGE_FAN.blocked = true;
                     waitForSubmit(RANGE_FAN);
@@ -355,22 +380,10 @@
                     showWindowForVent = true;
                   }
                 "
-                v-model="RANGE_FAN.val"
-                show-value
-                :min="60"
-                :max="100"
-                size="150px"
-                font-size="30px"
-                :thickness="0.35"
-                color="orange-9"
-                track-color="teal-7"
-                :dark="isDark"
-                class="q-ma-md"
-                >{{ RANGE_FAN.val }}%</q-knob
-              >
+                v-if="!SW_TABLE.val"
+                v-model="RANGE_FAN.val" :min="60" :max="100" color="orange-9" track-color="grey-5" thumb-size="25px" track-size="10px" :marker-labels="fanMarkerLabel" label-always style="margin-top: 30px"
+                />
             </div>
-
-            <!-- <div class="settingsInside" style="margin-right: 10px; width: 100%"> -->
             <q-dialog v-if="showWindowForVent" persistent v-model="showWindowForVent">
               <q-card
                 class="cardManCircle"
@@ -400,7 +413,7 @@
                 >
                   <q-btn
                     style="
-                      background-color: #00897b;
+                      background-color: #ed6c05;
                       color: white;
                       height: 15px;
                       margin-top: 10px;
@@ -426,7 +439,7 @@
                       }
                     "
                     style="
-                      background-color: #626262;
+                      background-color: #878787;
                       color: white;
                       height: 15px;
                       margin-top: 10px;
@@ -439,70 +452,6 @@
               </q-card>
             </q-dialog>
 
-            <!-- <div persistent v-if="showWindowForVent">
-              <q-card
-                class="cardManCircle"
-                :class="computedClass"
-                style="
-                  height: 100px;
-                  width: 300px;
-                  display: flex;
-                  flex-direction: column;
-                  border-radius: 20px;
-                "
-              >
-                <q-label
-                  :dark="isDark"
-                  style="margin: 0 auto; padding-top: 10px; font-size: 18px"
-                  >Подтвердить ввод?</q-label
-                >
-
-                <div
-                  style="
-                    display: flex;
-                    width: 100%;
-                    flex-direction: row;
-                    align-items: center;
-                    justify-content: space-evenly;
-                  "
-                >
-                  <q-btn
-                    style="
-                      background-color: #00897b;
-                      color: white;
-                      height: 15px;
-                      margin-top: 10px;
-                    "
-                    @click="
-                      () => {
-                        submitted = true;
-                        writeSet(RANGE_FAN);
-                        RANGE_FAN.blocked = false;
-                        showWindowForVent = false;
-                      }
-                    "
-                    label="Подтвердить"
-                    rounded
-                  />
-                  <q-btn
-                    @click="
-                      () => {
-                        waitForSubmit(RANGE_FAN);
-                        showWindowForVent = false;
-                      }
-                    "
-                    style="
-                      background-color: #626262;
-                      color: white;
-                      height: 15px;
-                      margin-top: 10px;
-                    "
-                    label="Отмена"
-                    rounded
-                  />
-                </div>
-              </q-card>
-            </div> -->
 
           </q-card-section>
 
@@ -536,7 +485,7 @@
                 >
                   <q-btn
                     style="
-                      background-color: #00897b;
+                      background-color: #ed6c05;
                       color: white;
                       height: 15px;
                       margin-top: 10px;
@@ -561,7 +510,7 @@
                       }
                     "
                     style="
-                      background-color: #626262;
+                      background-color: #878787;
                       color: white;
                       height: 15px;
                       margin-top: 10px;
@@ -578,7 +527,7 @@
                 class="settingsInside"
                 style="margin-right: 10px; width: 100%"
               >
-                <div>Уставка влажности</div>
+                <div>Текущая влажность</div>
 
                 <div style="font-weight: 700; margin-right: 10px">
                   {{ H10.val }}%
@@ -590,7 +539,7 @@
                 class="settingsInside"
                 style="margin-right: 10px; width: 100%"
               >
-                <div>Текущая влажность</div>
+                <div>Уставка влажности</div>
 
                 <div style="font-weight: 700; margin-right: 10px">
                   {{ RANGE_H.val }}%
@@ -598,19 +547,8 @@
               </div>
             </div>
             <div class="cardManCircle">
-              <q-knob
-                v-model="RANGE_H.val"
-                show-value
-                :min="5"
-                :max="35"
-                size="150px"
-                font-size="30px"
-                :thickness="0.35"
-                color="orange-9"
-                track-color="teal-7"
-                :dark="isDark"
-                class="q-ma-md"
-                @touchstart="
+
+              <q-slider @touchstart="
                   () => {
                     RANGE_H.blocked = true;
                     waitForSubmit(RANGE_H);
@@ -621,19 +559,38 @@
                     showWindowForHum = true;
                   }
                 "
-                >{{ RANGE_H.val }}%</q-knob
-              >
-              <!-- <q-btn
-                @click="testFoo(tag, tag.displayedValue)"
-                label="Подтвердить ввод"
-                rounded
-              /> -->
-            </div>
+                v-if="!SW_TABLE.val"
+                v-model="RANGE_H.val" :min="0" :max="100" color="orange-9" track-color="grey-5" thumb-size="25px" track-size="10px" :marker-labels="HumMarkerLabel" label-always style="margin-top: 30px"
+                />
 
-            <!-- </div> -->
+            </div>
           </q-card-section>
         </q-card>
       </div>
+      <q-dialog v-model="showAdviceForSchedule" >
+      <q-card :class="computedClass">
+
+        <q-card-section>
+          <div style="text-align: center">При активированном переключателе РТК работает по заданному расписанию, при отключенном — в автоматическом режиме по заданной уставке температуры и производительности вентиляции</div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+    <q-dialog v-model="showAdviceForRtk" >
+      <q-card :class="computedClass">
+
+        <q-card-section>
+          <div style="text-align: center">Переключатель предназначен для управления вентиляцией в автоматическом режиме работы. Он включает и отключает РТК</div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+    <q-dialog v-model="showAdviceForHeater" >
+      <q-card :class="computedClass">
+
+        <q-card-section>
+          <div style="text-align: center">Переключатель предназначен для управления нагревателем — он разрешает или запрещает включение нагревателя в том случае, если температура в помещении меньше уставки и требуется нагрев</div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
     </q-scroll-area>
 
 
@@ -650,42 +607,22 @@
         <q-label
           style="
             padding: 10px;
-            font-family: 'Roboto', sans-serif;
+            font-family: 'HelveticaRegular';
             font-size: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
           "
         >
-          <!-- <div @click="home">
-          <img
-            src="../components/images/back-svgrepo-com.svg"
-            style="
-              height: 20px;
-              display: flex;
-              justify-items: center;
-              margin-right: 5px;
-            "
-            v-if="isDark"
-          />
-          <img
-            src="../components/images/back-svgrepo-com-black.svg"
-            style="
-              height: 20px;
-              display: flex;
-              justify-items: center;
-              margin-right: 5px;
-            "
-            v-if="!isDark"
-          />
-        </div> -->
+
           <div style="text-align: center">
             <b>Расписание</b>
-          </div></q-label>
+          </div></q-label
+        >
 
         <q-card :class="computedClass" style="border-radius: 15px">
           <q-toolbar
-            style="justify-content: space-between; background-color: #ff6f24"
+            style="justify-content: space-between; background-color: #ed6c05"
           >
             <div
               style="
@@ -696,7 +633,7 @@
                 width: 100%;
               "
             >
-              <div><b>Настройки расписания</b></div>
+              <div style="color: white"><b>Настройки расписания</b></div>
             </div>
           </q-toolbar>
           <q-card-section>
@@ -705,7 +642,7 @@
               @click="
                 () => {
                   T_MODE.blocked = true;
-                  console.log('blocked');
+
                 }
               "
               @update:model-value="
@@ -723,12 +660,11 @@
               options-style="font-size: 16px;"
             />
             <q-select
-              v-if="T_MODE.val == 'ИНДИВИДУАЛЬНАЯ'"
               v-model="T_WDAY.val"
               @click="
                 () => {
                   T_WDAY.blocked = true;
-                  console.log('blocked');
+
                 }
               "
               @update:model-value="
@@ -744,40 +680,13 @@
               popup-content-style="font-size: 16px"
               options-style="font-size: 16px;"
             />
-            <q-select
-              v-if="T_MODE.val == 'ОФИС' || T_MODE.val == 'РАБОЧАЯ НЕДЕЛЯ'"
-              v-model="weekDayWW"
-              @update:model-value="
-                () => {
-                  console.log(weekDayWW);
-                  if (weekDayWW == 'Будни') {
-                    sendMessage(
-                      JSON.stringify(2),
-                      `/IoTmanager/RTK-${SN}/T_WDAY/control`
-                    );
-                  }
-                  if (weekDayWW == 'Выходные') {
-                    sendMessage(
-                      JSON.stringify(6),
-                      `/IoTmanager/RTK-${SN}/T_WDAY/control`
-                    );
-                  }
-                }
-              "
-              :options="weekDaysWorkWeekend"
-              label="День недели"
-              style="margin-top: -10px"
-              :color="isDark"
-              :dark="isDark"
-              popup-content-style="font-size: 16px"
-              options-style="font-size: 16px;"
-            />
+
           </q-card-section>
         </q-card>
 
         <q-card :class="computedClass" style="border-radius: 15px">
           <q-toolbar
-            style="justify-content: space-between; background-color: #ff6f24"
+            style="justify-content: space-between; background-color: #ed6c05"
           >
             <div
               style="
@@ -788,20 +697,30 @@
                 width: 100%;
               "
             >
-              <div><b>Время 1</b></div>
+              <div style="color: white"><b>Время 1</b></div>
               <q-input
                 v-model="T_TIME_1.val"
-                @focus="() => {
-                  T_TIME_1.blocked = true;
-                }"
+                @focus="
+                  () => {
+                    T_TIME_1.blocked = true;
+                  }
+                "
+                @blur="
+                  () => {
+
+                    isPromise = true;
+                    writeScheduleSet(T_TIME_1);
+                  }
+                "
                 icon="time"
                 outlined
-
+                dark
                 dense
-                :dark="isDark"
+
                 style="width: 30%; font-size: 16px; padding: 0"
                 :color="isDark"
-
+                mask="##:##"
+                maxlength="5"
                 ><template v-slot:prepend> <q-icon name="schedule" /> </template
               ></q-input>
             </div>
@@ -827,12 +746,12 @@
                 "
                 @blur="
                   () => {
-                    writeScheduleSetMultiple(T_VENT_1, T_VENT_1.val);
+                    writeScheduleSet(T_VENT_1);
                   }
                 "
                 v-model="T_VENT_1.val"
                 dense
-                style="width: 30%; font-size: 16px"
+                style="width: 30%; font-size: 16px; margin-top: 20px"
                 :dark="isDark"
                 :color="isDark"
                 :rules="[(val) => val > 59 || 'Минимальное значение: 60']"
@@ -852,7 +771,7 @@
               <q-input
                 v-model="T_TEMP_1.val"
                 dense
-                style="width: 30%; font-size: 16px"
+                style="width: 30%; font-size: 16px; "
                 :dark="isDark"
                 :color="isDark"
                 :lazy-rules="true"
@@ -863,17 +782,11 @@
                 "
                 @blur="
                   () => {
-                    writeScheduleSetMultiple(T_TEMP_1, T_TEMP_1.val);
+                    writeScheduleSet(T_TEMP_1);
                   }
                 "
               />
-              <!-- <q-input
-              v-model="T_TEMP_1.val"
-              dense
-              :dark="isDark"
-              style="width: 30%; margin-left: 6px; font-size: 16px; padding: 0"
-              :color="isDark"
-            /> -->
+
             </div>
             <div style="margin-bottom: -10px; margin-top: 10px">
               <div
@@ -883,6 +796,7 @@
                 <div>Вентиляция</div>
 
                 <q-toggle
+                size="lg"
                   @click="toggle(T_SW_FAN_1)"
                   color="orange-9"
                   v-model="T_SW_FAN_1.val"
@@ -897,6 +811,7 @@
                 <div>Нагреватель</div>
 
                 <q-toggle
+                size="lg"
                   @click="toggle(T_SW_HEATER_1)"
                   color="orange-9"
                   v-model="T_SW_HEATER_1.val"
@@ -907,7 +822,7 @@
         </q-card>
         <q-card :class="computedClass" style="border-radius: 15px">
           <q-toolbar
-            style="justify-content: space-between; background-color: #ff6f24"
+            style="justify-content: space-between; background-color: #ed6c05"
           >
             <div
               style="
@@ -918,20 +833,28 @@
                 width: 100%;
               "
             >
-              <div><b>Время 2</b></div>
+              <div style="color: white"><b>Время 2</b></div>
               <q-input
                 v-model="T_TIME_2.val"
-                @focus="() => {
-                  T_TIME_2.blocked = true;
-                }"
+                @focus="
+                  () => {
+                    T_TIME_2.blocked = true;
+                  }
+                "
+                @blur="
+                  () => {
+                    writeScheduleSet(T_TIME_2);
+                  }
+                "
                 icon="time"
                 outlined
 
                 dense
-                :dark="isDark"
+                dark
                 style="width: 30%; font-size: 16px; padding: 0"
                 :color="isDark"
-
+                maxlength="5"
+                mask="##:##"
                 ><template v-slot:prepend> <q-icon name="schedule" /> </template
               ></q-input>
             </div>
@@ -952,7 +875,7 @@
               <q-input
                 v-model="T_VENT_2.val"
                 dense
-                style="width: 30%; font-size: 16px"
+                style="width: 30%; font-size: 16px;  margin-top: 20px"
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -962,7 +885,7 @@
                 "
                 @blur="
                   () => {
-                    writeScheduleSetMultiple(T_VENT_2, T_VENT_2.val);
+                    writeScheduleSet(T_VENT_2);
                   }
                 "
                 :rules="[(val) => val > 59 || 'Минимальное значение: 60']"
@@ -982,7 +905,7 @@
               <q-input
                 v-model="T_TEMP_2.val"
                 dense
-                style="width: 30%; font-size: 16px"
+                style="width: 30%; font-size: 16px;  "
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -992,7 +915,7 @@
                 "
                 @blur="
                   () => {
-                    writeScheduleSetMultiple(T_TEMP_2, T_TEMP_2.val);
+                    writeScheduleSet(T_TEMP_2);
                   }
                 "
               />
@@ -1005,6 +928,7 @@
                 <div>Вентиляция</div>
 
                 <q-toggle
+                size="lg"
                   @click="toggle(T_SW_FAN_2)"
                   color="orange-9"
                   v-model="T_SW_FAN_2.val"
@@ -1019,6 +943,7 @@
                 <div>Нагреватель</div>
 
                 <q-toggle
+                size="lg"
                   @click="toggle(T_SW_HEATER_2)"
                   color="orange-9"
                   v-model="T_SW_HEATER_2.val"
@@ -1029,7 +954,7 @@
         </q-card>
         <q-card :class="computedClass" style="border-radius: 15px">
           <q-toolbar
-            style="justify-content: space-between; background-color: #ff6f24"
+            style="justify-content: space-between; background-color: #ed6c05"
           >
             <div
               style="
@@ -1040,20 +965,28 @@
                 width: 100%;
               "
             >
-              <div><b>Время 3</b></div>
+              <div style="color: white"><b>Время 3</b></div>
               <q-input
                 v-model="T_TIME_3.val"
-                @focus="() => {
-                  T_TIME_3.blocked = true;
-                }"
+                @focus="
+                  () => {
+                    T_TIME_3.blocked = true;
+                  }
+                "
+                @blur="
+                  () => {
+                    writeScheduleSet(T_TIME_3);
+                  }
+                "
                 icon="time"
                 outlined
 
                 dense
-                :dark="isDark"
+                dark
                 style="width: 30%; font-size: 16px; padding: 0"
                 :color="isDark"
-
+                maxlength="5"
+                mask="##:##"
                 ><template v-slot:prepend> <q-icon name="schedule" /> </template
               ></q-input>
             </div>
@@ -1074,7 +1007,7 @@
               <q-input
                 v-model="T_VENT_3.val"
                 dense
-                style="width: 30%; font-size: 16px"
+                style="width: 30%; font-size: 16px; margin-top: 20px"
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -1084,8 +1017,7 @@
                 "
                 @blur="
                   () => {
-                    // writeScheduleSet(T_VENT_3);
-                    writeScheduleSetMultiple(T_VENT_3, T_VENT_3.val);
+                    writeScheduleSet(T_VENT_3);
                   }
                 "
                 :rules="[(val) => val > 59 || 'Минимальное значение: 60']"
@@ -1105,7 +1037,7 @@
               <q-input
                 v-model="T_TEMP_3.val"
                 dense
-                style="width: 30%; font-size: 16px"
+                style="width: 30%; font-size: 16px;  "
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -1115,8 +1047,7 @@
                 "
                 @blur="
                   () => {
-                    // writeScheduleSet(T_TEMP_3);
-                    writeScheduleSetMultiple(T_TEMP_3, T_TEMP_3.val);
+                    writeScheduleSet(T_TEMP_3);
                   }
                 "
               />
@@ -1129,6 +1060,7 @@
                 <div>Вентиляция</div>
 
                 <q-toggle
+                size="lg"
                   @click="toggle(T_SW_FAN_3)"
                   color="orange-9"
                   v-model="T_SW_FAN_3.val"
@@ -1143,6 +1075,7 @@
                 <div>Нагреватель</div>
 
                 <q-toggle
+                size="lg"
                   @click="toggle(T_SW_HEATER_3)"
                   color="orange-9"
                   v-model="T_SW_HEATER_3.val"
@@ -1154,7 +1087,7 @@
 
         <q-card :class="computedClass" style="border-radius: 15px">
           <q-toolbar
-            style="justify-content: space-between; background-color: #ff6f24"
+            style="justify-content: space-between; background-color: #ed6c05"
           >
             <div
               style="
@@ -1165,20 +1098,28 @@
                 width: 100%;
               "
             >
-              <div><b>Время 4</b></div>
+              <div style="color: white"><b>Время 4</b></div>
               <q-input
                 v-model="T_TIME_4.val"
-                @focus="() => {
-                  T_TIME_4.blocked = true;
-                }"
+                @focus="
+                  () => {
+                    T_TIME_4.blocked = true;
+                  }
+                "
+                @blur="
+                  () => {
+                    writeScheduleSet(T_TIME_4);
+                  }
+                "
                 icon="time"
                 outlined
 
                 dense
-                :dark="isDark"
+                dark
                 style="width: 30%; font-size: 16px; padding: 0"
                 :color="isDark"
-
+                maxlength="5"
+                mask="##:##"
                 ><template v-slot:prepend> <q-icon name="schedule" /> </template
               ></q-input>
             </div>
@@ -1199,7 +1140,7 @@
               <q-input
                 v-model="T_VENT_4.val"
                 dense
-                style="width: 30%; font-size: 16px"
+                style="width: 30%; font-size: 16px;  margin-top: 20px"
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -1209,8 +1150,7 @@
                 "
                 @blur="
                   () => {
-                    // writeScheduleSet(T_VENT_4);
-                    writeScheduleSetMultiple(T_VENT_4, T_VENT_4.val);
+                    writeScheduleSet(T_VENT_4);
                   }
                 "
                 :rules="[(val) => val > 59 || 'Минимальное значение: 60']"
@@ -1230,7 +1170,7 @@
               <q-input
                 v-model="T_TEMP_4.val"
                 dense
-                style="width: 30%; font-size: 16px"
+                style="width: 30%; font-size: 16px;  "
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -1240,8 +1180,7 @@
                 "
                 @blur="
                   () => {
-                    // writeScheduleSet(T_TEMP_4);
-                    writeScheduleSetMultiple(T_TEMP_4, T_TEMP_4.val);
+                    writeScheduleSet(T_TEMP_4);
                   }
                 "
               />
@@ -1254,6 +1193,7 @@
                 <div>Вентиляция</div>
 
                 <q-toggle
+                size="lg"
                   @click="toggle(T_SW_FAN_4)"
                   color="orange-9"
                   v-model="T_SW_FAN_4.val"
@@ -1268,6 +1208,7 @@
                 <div>Нагреватель</div>
 
                 <q-toggle
+                size="lg"
                   @click="toggle(T_SW_HEATER_4)"
                   color="orange-9"
                   v-model="T_SW_HEATER_4.val"
@@ -1278,7 +1219,7 @@
         </q-card>
         <q-card :class="computedClass" style="border-radius: 15px">
           <q-toolbar
-            style="justify-content: space-between; background-color: #ff6f24"
+            style="justify-content: space-between; background-color: #ed6c05"
           >
             <div
               style="
@@ -1289,19 +1230,28 @@
                 width: 100%;
               "
             >
-              <div><b>Время 5</b></div>
+              <div style="color: white"><b>Время 5</b></div>
               <q-input
                 v-model="T_TIME_5.val"
-                @focus="() => {
-                  T_TIME_5.blocked = true;
-                }"
+                @focus="
+                  () => {
+                    T_TIME_5.blocked = true;
+                  }
+                "
+                @blur="
+                  () => {
+                    writeScheduleSet(T_TIME_5);
+                  }
+                "
                 icon="time"
                 outlined
 
                 dense
-                :dark="isDark"
+                dark
                 style="width: 30%; font-size: 16px; padding: 0"
                 :color="isDark"
+                maxlength="5"
+                mask="##:##"
                 ><template v-slot:prepend> <q-icon name="schedule" /> </template
               ></q-input>
             </div>
@@ -1322,7 +1272,7 @@
               <q-input
                 v-model="T_VENT_5.val"
                 dense
-                style="width: 30%; font-size: 16px"
+                style="width: 30%; font-size: 16px; margin-top: 20px"
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -1332,8 +1282,7 @@
                 "
                 @blur="
                   () => {
-                    // writeScheduleSet(T_VENT_5);
-                    writeScheduleSetMultiple(T_VENT_5, T_VENT_5.val);
+                    writeScheduleSet(T_VENT_5);
                   }
                 "
                 :rules="[(val) => val > 59 || 'Минимальное значение: 60']"
@@ -1353,7 +1302,7 @@
               <q-input
                 v-model="T_TEMP_5.val"
                 dense
-                style="width: 30%; font-size: 16px"
+                style="width: 30%; font-size: 16px;  "
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -1363,8 +1312,7 @@
                 "
                 @blur="
                   () => {
-                    // writeScheduleSet(T_TEMP_5);
-                    writeScheduleSetMultiple(T_TEMP_5, T_TEMP_5.val);
+                    writeScheduleSet(T_TEMP_5);
                   }
                 "
               />
@@ -1377,6 +1325,7 @@
                 <div>Вентиляция</div>
 
                 <q-toggle
+                size="lg"
                   @click="toggle(T_SW_FAN_5)"
                   color="orange-9"
                   v-model="T_SW_FAN_5.val"
@@ -1391,6 +1340,7 @@
                 <div>Нагреватель</div>
 
                 <q-toggle
+                size="lg"
                   @click="toggle(T_SW_HEATER_5)"
                   color="orange-9"
                   v-model="T_SW_HEATER_5.val"
@@ -1401,7 +1351,7 @@
         </q-card>
         <q-card :class="computedClass" style="border-radius: 15px">
           <q-toolbar
-            style="justify-content: space-between; background-color: #ff6f24"
+            style="justify-content: space-between; background-color: #ed6c05"
           >
             <div
               style="
@@ -1412,20 +1362,28 @@
                 width: 100%;
               "
             >
-              <div><b>Время 6</b></div>
+              <div style="color: white"><b>Время 6</b></div>
               <q-input
                 v-model="T_TIME_6.val"
-                @focus="() => {
-                  T_TIME_6.blocked = true;
-                }"
+                @focus="
+                  () => {
+                    T_TIME_6.blocked = true;
+                  }
+                "
+                @blur="
+                  () => {
+                    writeScheduleSet(T_TIME_6);
+                  }
+                "
                 icon="time"
                 outlined
 
                 dense
-                :dark="isDark"
+                dark
                 style="width: 30%; font-size: 16px; padding: 0"
                 :color="isDark"
-
+                maxlength="5"
+                mask="##:##"
                 ><template v-slot:prepend> <q-icon name="schedule" /> </template
               ></q-input>
             </div>
@@ -1446,7 +1404,7 @@
               <q-input
                 v-model="T_VENT_6.val"
                 dense
-                style="width: 30%; font-size: 16px"
+                style="width: 30%; font-size: 16px;  margin-top: 20px"
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -1456,8 +1414,7 @@
                 "
                 @blur="
                   () => {
-                    // writeScheduleSet(T_VENT_6);
-                    writeScheduleSetMultiple(T_VENT_6, T_VENT_6.val);
+                    writeScheduleSet(T_VENT_6);
                   }
                 "
                 :rules="[(val) => val > 59 || 'Минимальное значение: 60']"
@@ -1477,7 +1434,7 @@
               <q-input
                 v-model="T_TEMP_6.val"
                 dense
-                style="width: 30%; font-size: 16px"
+                style="width: 30%; font-size: 16px;  "
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -1487,8 +1444,7 @@
                 "
                 @blur="
                   () => {
-                    writeScheduleSetMultiple(T_TEMP_6, T_TEMP_6.val);
-                    // writeScheduleSet(T_TEMP_6);
+                    writeScheduleSet(T_TEMP_6);
                   }
                 "
               />
@@ -1501,6 +1457,7 @@
                 <div>Вентиляция</div>
 
                 <q-toggle
+                size="lg"
                   @click="toggle(T_SW_FAN_6)"
                   color="orange-9"
                   v-model="T_SW_FAN_6.val"
@@ -1515,6 +1472,7 @@
                 <div>Нагреватель</div>
 
                 <q-toggle
+                size="lg"
                   @click="toggle(T_SW_HEATER_6)"
                   color="orange-9"
                   v-model="T_SW_HEATER_6.val"
@@ -1525,7 +1483,7 @@
         </q-card>
         <q-card :class="computedClass" style="border-radius: 15px">
           <q-toolbar
-            style="justify-content: space-between; background-color: #ff6f24"
+            style="justify-content: space-between; background-color: #ed6c05"
           >
             <div
               style="
@@ -1536,19 +1494,28 @@
                 width: 100%;
               "
             >
-              <div><b>Время 7</b></div>
+              <div style="color: white"><b>Время 7</b></div>
               <q-input
                 v-model="T_TIME_7.val"
-                @focus="() => {
-                  T_TIME_7.blocked = true;
-                }"
+                @focus="
+                  () => {
+                    T_TIME_7.blocked = true;
+                  }
+                "
+                @blur="
+                  () => {
+                    writeScheduleSet(T_TIME_7);
+                  }
+                "
                 icon="time"
                 outlined
+
                 dense
-                :dark="isDark"
+                dark
                 style="width: 30%; font-size: 16px; padding: 0"
                 :color="isDark"
-
+                maxlength="5"
+                mask="##:##"
                 ><template v-slot:prepend> <q-icon name="schedule" /> </template
               ></q-input>
             </div>
@@ -1569,7 +1536,7 @@
               <q-input
                 v-model="T_VENT_7.val"
                 dense
-                style="width: 30%; font-size: 16px"
+                style="width: 30%; font-size: 16px; margin-top: 20px"
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -1579,8 +1546,7 @@
                 "
                 @blur="
                   () => {
-                    // writeScheduleSet(T_VENT_7);
-                    writeScheduleSetMultiple(T_VENT_7, T_VENT_7.val);
+                    writeScheduleSet(T_VENT_7);
                   }
                 "
                 :rules="[(val) => val > 59 || 'Минимальное значение: 60']"
@@ -1600,7 +1566,7 @@
               <q-input
                 v-model="T_TEMP_7.val"
                 dense
-                style="width: 30%; font-size: 16px"
+                style="width: 30%; font-size: 16px;  "
                 :dark="isDark"
                 :color="isDark"
                 @focus="
@@ -1610,8 +1576,7 @@
                 "
                 @blur="
                   () => {
-                    // writeScheduleSet(T_TEMP_7);
-                    writeScheduleSetMultiple(T_TEMP_7, T_TEMP_7.val);
+                    writeScheduleSet(T_TEMP_7);
                   }
                 "
               />
@@ -1623,6 +1588,7 @@
               >
                 <div>Вентиляция</div>
                 <q-toggle
+                size="lg"
                   @click="toggle(T_SW_FAN_7)"
                   color="orange-9"
                   v-model="T_SW_FAN_7.val"
@@ -1636,6 +1602,7 @@
               >
                 <div>Нагреватель</div>
                 <q-toggle
+                size="lg"
                   @click="toggle(T_SW_HEATER_7)"
                   color="orange-9"
                   v-model="T_SW_HEATER_7.val"
@@ -1644,12 +1611,6 @@
             </div>
           </q-card-section>
         </q-card>
-
-
-        <div style="width: 100%; display: flex; justify-content: center">
-          <q-btn rounded label="Записать день" color="orange-9" style="display: flex; align-self: center" @click="immediateWrite"/>
-        </div>
-
       </div>
     </q-scroll-area>
 
@@ -1665,42 +1626,20 @@
         <q-label
           style="
             padding: 10px;
-            font-family: 'Roboto', sans-serif;
+            font-family: 'HelveticaRegular';
             font-size: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
           "
         >
-          <!-- <div @click="home">
-          <img
-            src="../components/images/back-svgrepo-com.svg"
-            style="
-              height: 20px;
-              display: flex;
-              justify-items: center;
-              margin-right: 5px;
-            "
-            v-if="isDark"
-          />
-          <img
-            src="../components/images/back-svgrepo-com-black.svg"
-            style="
-              height: 20px;
-              display: flex;
-              justify-items: center;
-              margin-right: 5px;
-            "
-            v-if="!isDark"
-          />
-        </div> -->
           <div style="text-align: center">
             <b>Параметры</b>
           </div></q-label
         >
         <q-card :class="computedClass" style="border-radius: 15px">
           <q-toolbar
-            style="justify-content: space-between; background-color: #ff6f24"
+            style="justify-content: space-between; background-color: #ed6c05"
           >
             <div
               style="
@@ -1709,6 +1648,7 @@
                 align-items: center;
                 justify-content: space-between;
                 width: 100%;
+                color: white;
               "
             >
               <div><b>Настройки времени</b></div>
@@ -1720,7 +1660,6 @@
               @click="
                 () => {
                   WDAY.blocked = true;
-                  console.log('blocked');
                 }
               "
               @update:model-value="
@@ -1742,6 +1681,7 @@
                 flex-direction: row;
                 align-items: center;
                 justify-content: space-between;
+
               "
             >
               <div>Текущее время</div>
@@ -1751,22 +1691,19 @@
                 @focus="
                   () => {
                     TIME.blocked = true;
-                    console.log('blocked');
-                  }
-                "
+                  }"
                 @blur="
                   () => {
-                    
                     writeScheduleSet(TIME);
-                  }
-                "
+                  }"
                 icon="time"
                 outlined
                 mask="##:##"
                 dense
                 :dark="isDark"
-                style="width: 30%; font-size: 16px; padding: 0"
+                style="width: 120px; font-size: 16px; padding: 0"
                 :color="isDark"
+                placeholder="00:00"
                 ><template v-slot:prepend> <q-icon name="schedule" /> </template
               ></q-input>
             </div>
@@ -1774,7 +1711,7 @@
         </q-card>
         <q-card :class="computedClass" style="border-radius: 15px">
           <q-toolbar
-            style="justify-content: space-between; background-color: #ff6f24"
+            style="justify-content: space-between; background-color: #ed6c05"
           >
             <div
               style="
@@ -1783,6 +1720,7 @@
                 align-items: center;
                 justify-content: space-between;
                 width: 100%;
+                color: white;
               "
             >
               <div><b>Настройки точки доступа</b></div>
@@ -1803,6 +1741,7 @@
             >
               <div>Точка доступа</div>
               <q-toggle
+              size="lg"
                 color="orange-9"
                 v-model="AP.val"
                 @click="
@@ -1836,6 +1775,7 @@
                 style="width: auto; font-size: 16px; margin-left: 8px"
                 :dark="isDark"
                 :color="isDark"
+                maxlength="16"
                 @focus="
                   () => {
                     WIFI_AP_SSID.blocked = true;
@@ -1898,12 +1838,17 @@
                 margin-bottom: -10px;
               "
             >
-              <div>Перезагрузка устройства</div>
-              <q-btn
+            <div style="display: flex; flex-direction: row; justify-content: center; width: 100%">
+                <q-btn
                 icon="update"
+                id="button"
                 v-model="BTN_RESET2"
+                no-caps rounded
                 @click="reloadBtnPressed(BTN_RESET2)"
+                label="Перезагрузка устройства"
+                style="margin-bottom: 10px; width: 250px"
               />
+              </div>
             </div>
           </q-card-section>
         </q-card>
@@ -1913,7 +1858,7 @@
           style="border-radius: 15px"
         >
           <q-toolbar
-            style="justify-content: space-between; background-color: #ff6f24"
+            style="justify-content: space-between; background-color: #ed6c05"
           >
             <div
               style="
@@ -1922,12 +1867,14 @@
                 align-items: center;
                 justify-content: space-between;
                 width: 100%;
+                color: white;
               "
             >
               <div><b>Настройки режима станции</b></div>
+
             </div>
           </q-toolbar>
-          <q-card-section style="justify-content: space-between">
+            <q-card-section style="justify-content: space-between">
             <div
               :color="isDark"
               :dark="isDark"
@@ -2171,16 +2118,34 @@
                 margin-bottom: -10px;
               "
             >
-              <div>Перезагрузка устройства</div>
-              <q-btn
+              <div style="display: flex; flex-direction: row; justify-content: center; width: 100%">
+                <q-btn
                 icon="update"
                 v-model="BTN_RESET"
+                no-caps rounded
                 @click="reloadBtnPressed(BTN_RESET)"
+                label="Перезагрузка устройства"
+                style="margin-bottom: 10px; "
               />
+              </div>
+
             </div>
           </q-card-section>
+
+
         </q-card>
+
+
       </div>
+      <q-dialog v-model="showAdvice" >
+      <q-card :class="computedClass">
+
+        <q-card-section>
+          <div style="text-align: center">Перезагрузка необходима для применения настроек. Если Вы вносили изменения в один из параметров выше, перезагрузите устройство.</div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
     </q-scroll-area>
   </q-layout>
 
@@ -2191,8 +2156,9 @@
       align-content: center;
       position: fixed;
       bottom: 0px;
+      background-color: #00692f;
     "
-    class="bg-teal-7 text-white"
+    class="text-white"
   >
     <q-toolbar style="justify-content: space-around">
       <div
@@ -2206,14 +2172,15 @@
           }
         "
       >
-        <div>
+        <div style="row-gap: 2px">
+
           <img
-            src="../components/images/3643769-building-home-house-main-menu-start_113416.svg"
+            src="../components/images/Vector (3).svg"
             alt=""
-            style="width: 40px; padding: 10"
+            style="width: 42px; height: 40px; padding: 10"
           />
         </div>
-        <div style="font-size: 8px; margin-top: -10px">Поиск</div>
+        <div style="font-size: 10px; margin-top: -8px">Устройства</div>
       </div>
       <div
         class="navbar"
@@ -2221,18 +2188,25 @@
           () => {
             redoColor();
             openSchedule();
-            // synchTimers();
           }
         "
       >
-        <div>
+        <div style="row-gap: 2px">
           <img
-            src="../components/images/calendar-time-date-schedule-svgrepo-com (1).svg"
+          v-if="schedulePage && !set && systemIsChosen && !settingsPage"
+            src="../components/images/Vector (2) copy.svg"
             alt=""
-            style="width: 40px; padding: 10"
+            style="width: 40px; padding: 10; height: 40px;"
+          />
+         <img
+          v-if="!schedulePage && (!set || systemIsChosen || !settingsPage)"
+            src="../components/images/Vector (2).svg"
+            alt=""
+            style="width: 40px; height: 40px; padding: 10"
           />
         </div>
-        <div style="font-size: 8px; margin-top: -10px">Расписание</div>
+        <div v-if="!schedulePage && (!set || systemIsChosen || !settingsPage)" style="font-size: 10px; margin-top: -8px; color: white">Расписание</div>
+        <div v-if="schedulePage && !set && systemIsChosen && !settingsPage" style="font-size: 10px; margin-top: -8px; color: #ed6c05">Расписание</div>
       </div>
 
       <div
@@ -2244,20 +2218,26 @@
             isTemp = true;
             isFan = false;
             isHum = false;
-            // synchTimers();
           }
         "
       >
-        <div>
+        <div style="row-gap: 2px">
           <img
-            src="../components/images/monitoring-svgrepo-com.svg"
+          v-if="schedulePage || settingsPage"
+            src="../components/images/Vector (4).svg"
             alt=""
-            style="width: 40px; padding: 10"
+            style="width: 40px; height: 40px; padding: 10"
+          />
+          <img
+          v-if="!schedulePage && !settingsPage"
+            src="../components/images/Vector (4) copy.svg"
+            alt=""
+            style="width: 40px; height: 40px; padding: 10"
           />
         </div>
-        <div style="font-size: 8px; margin-top: -10px">Управление</div>
+        <div style="font-size: 10px; margin-top: -8px; color: white" v-if="schedulePage || settingsPage">Управление</div>
+        <div style="font-size: 10px; margin-top: -8px; color:#ed6c05" v-if="!schedulePage && !settingsPage">Управление</div>
       </div>
-      <!--  -->
       <div
         class="navbar"
         @click="
@@ -2267,14 +2247,23 @@
           }
         "
       >
-        <div>
+        <div style="row-gap: 2px">
+
           <img
-            src="../components/images/settings-svgrepo-com (1).svg"
+          v-if="settingsPage && !set && systemIsChosen && !schedulePage"
+            src="../components/images/Vector (5) copy.svg"
             alt=""
-            style="width: 40px; padding: 10"
+            style="width: 40px; padding: 10; height: 40px;"
+          />
+          <img
+          v-if="!settingsPage && (!set || systemIsChosen || !schedulePage)"
+            src="../components/images/Vector (5).svg"
+            alt=""
+            style="width: 39px; padding: 10; height: 40px;"
           />
         </div>
-        <div style="font-size: 8px; margin-top: -10px">Параметры</div>
+        <div style="font-size: 10px; margin-top: -8px; padding-top: -5px; color: white" v-if="!settingsPage && (!set || systemIsChosen || !schedulePage)">Параметры</div>
+        <div style="font-size: 10px; margin-top: -8px; padding-top: -5px; color: #ed6c05" v-if="settingsPage && !set && systemIsChosen && !schedulePage">Параметры</div>
       </div>
     </q-toolbar>
   </q-footer>
@@ -2283,23 +2272,37 @@
 <script setup>
 
 
-import { ref, onMounted, onBeforeMount, inject, provide } from "vue";
+import { ref, onMounted, onBeforeMount, inject, provide} from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useQuasar } from 'quasar';
+import { useQuasar, setCssVar } from 'quasar';
+
+setCssVar('knobColor', '#009453')
 
 const $q = useQuasar()
 $q.loading.show({
     delay: 200 // ms
-  })
-import mitt from "mitt";
-// import bonjour from 'bonjour';
+})
+
+const showAdvice = ref(false);
+const showAdviceForSchedule = ref(false);
+const showAdviceForRtk = ref(false);
+const showAdviceForHeater = ref(false);
+
 const isDark = ref();
 const theme = ref();
 const systems = ref([]);
 
+const count = ref(0);
+const loading = ref(false);
+const onRefresh = () => {
+  setTimeout(() => {
+    loading.value = false;
+    count.value++;
+  }, 1000);
+};
+
 const bus = inject("bus");
 bus.on("themeChanged", (themeValue) => {
-  // console.log("changed");
   redoColor();
 });
 
@@ -2316,9 +2319,8 @@ let currentSystem = systemsList.find(
         system.host === host
     );
 
-console.log(SN, host, port);
 const rtkSerialNum = ref("");
-// console.log(Paho);
+const hasLoaded = ref(false);
 const myMsg = ref(0);
 const rtkArray = ref([]);
 const parsedMessage = ref();
@@ -2331,42 +2333,18 @@ const monitoring = ref(false);
 const set = ref(false);
 const logsPage = ref(false);
 const schedulePage = ref(false);
-const temp_set = ref("15");
-const chosenSys = ref();
-const logs = ref([]);
-const timers = ref([]);
-const currentSeason = ref();
-let configuration;
-const onOff = ref([]);
-const numSets = ref([]);
-const authPage = ref(true);
 const settingsPage = ref(false);
 const computedClass = ref("my-card-dark");
+const selectClass = ref("underline");
+const selectClass1 = ref("no-underline");
+const selectClass2 = ref("no-underline");
 const darkThemeMq = ref();
-// const isSpinner = ref(false);
-const stopRefresh = ref(false);
 const labelColor = ref("text-white");
 const mainColor = ref("white");
-const prepared = ref();
 
-const onButton = ref([]);
-const offButton = ref([]);
-const resetAlarmButton = ref([]);
 const confirm = ref(false);
 
-const timersModelEnable = ref({}); // eslint-disable-line
-const timersModelTime = ref({}); // eslint-disable-line
-const timersModelTag = ref({}); // eslint-disable-line
-const timersModelTagName = ref({}); // eslint-disable-line
-const timersModelDays = ref({}); // eslint-disable-line
-const timerModelInput = ref({}); // eslint-disable-line
-const timerModelSelectInput = ref({}); // eslint-disable-line
-const timerModelSelectInputOp = ref({}); // eslint-disable-line
-const messenger = ref([]);
-const system = ref({});
-const serverNotAvailable = ref(false);
-const notificationText = ref();
-const allowUsers = ref([]);
+
 const colors = [
   "white",
   "green",
@@ -2381,28 +2359,12 @@ const colors = [
   "black",
   "#ff5ec9",
 ];
-const firstSetup = ref(true);
 const isTemp = ref(true);
 const isFan = ref(false);
 const isHum = ref(false);
 const router = useRouter();
-const email = ref("");
-const password = ref("");
-const jsonMessage = ref();
 const isPromise = ref(false);
-const systemName = ref("");
-// const host = ref("test.mosquitto.org");
-// const port = ref("8081");
-const prefix = ref("IoTmanager");
-let wsClient;
-const systemList = ref([
-  {
-    Name: "RTK-868488",
-    Host: "test.mosquitto.org",
-    Port: 8080,
-    Prefix: "IoTmanager",
-  },
-]);
+
 const scheduleOptions = ref([
   "ОФИС",
   "ВСЕ ВРЕМЯ ДОМА",
@@ -2410,7 +2372,6 @@ const scheduleOptions = ref([
   "ИНДИВИДУАЛЬНАЯ",
 ]);
 const weekDays = ref(["ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"]);
-const weekDaysWorkWeekend = ref(["Будни", "Выходные"]);
 const weekDayWW = ref();
 const alarmDictionary = ref({
   "FAULT: OVERHEAT": "Авария: термоконтакт!",
@@ -2466,7 +2427,7 @@ const ERR = ref({
 //  вкладка время
 const WDAY = ref({
   topic: `/IoTmanager/RTK-${SN}/WDAY`,
-  val: "",
+  val: "0",
   blocked: false,
 });
 const TIME = ref({
@@ -2730,59 +2691,12 @@ rtkArray.value.push(
   CONFIRM,
   TCANCEL
 );
-const T_TIME_1_add = ref(T_TIME_1.value.val);
-const T_VENT_1_add = ref(T_VENT_1.value.val);
-const T_TEMP_1_add = ref(T_TEMP_1.value.val);
-const T_SW_FAN_1_add = ref(T_SW_FAN_1.value.val);
-const T_SW_HEATER_1_add = ref(T_SW_HEATER_1.value.val);
 
-const T_TIME_2_add = ref(T_TIME_2.value.val);
-const T_VENT_2_add = ref(T_VENT_2.value.val);
-const T_TEMP_2_add = ref(T_TEMP_2.value.val);
-const T_SW_FAN_2_add = ref(T_SW_FAN_2.value.val);
-const T_SW_HEATER_2_add = ref(T_SW_HEATER_2.value.val);
-
-const T_TIME_3_add = ref(T_TIME_3.value.val);
-const T_VENT_3_add = ref(T_VENT_3.value.val);
-const T_TEMP_3_add = ref(T_TEMP_3.value.val);
-const T_SW_FAN_3_add = ref(T_SW_FAN_3.value.val);
-const T_SW_HEATER_3_add = ref(T_SW_HEATER_3.value.val);
-
-const T_TIME_4_add = ref(T_TIME_4.value.val);
-const T_VENT_4_add = ref(T_VENT_4.value.val);
-const T_TEMP_4_add = ref(T_TEMP_4.value.val);
-const T_SW_FAN_4_add = ref(T_SW_FAN_4.value.val);
-const T_SW_HEATER_4_add = ref(T_SW_HEATER_4.value.val);
-
-const T_TIME_5_add = ref(T_TIME_5.value.val);
-const T_VENT_5_add = ref(T_VENT_5.value.val);
-const T_TEMP_5_add = ref(T_TEMP_5.value.val);
-const T_SW_FAN_5_add = ref(T_SW_FAN_5.value.val);
-const T_SW_HEATER_5_add = ref(T_SW_HEATER_5.value.val);
-
-const T_TIME_6_add = ref(T_TIME_6.value.val);
-const T_VENT_6_add = ref(T_VENT_6.value.val);
-const T_TEMP_6_add = ref(T_TEMP_6.value.val);
-const T_SW_FAN_6_add = ref(T_SW_FAN_6.value.val);
-const T_SW_HEATER_6_add = ref(T_SW_HEATER_6.value.val);
-
-const T_TIME_7_add = ref(T_TIME_7.value.val);
-const T_VENT_7_add = ref(T_VENT_7.value.val);
-const T_TEMP_7_add = ref(T_TEMP_7.value.val);
-const T_SW_FAN_7_add = ref(T_SW_FAN_7.value.val);
-const T_SW_HEATER_7_add = ref(T_SW_HEATER_7.value.val);
-
-const addArray = ref([T_TIME_1_add, T_VENT_1_add, T_TEMP_1_add, T_SW_FAN_1_add, T_SW_HEATER_1_add, T_TIME_2_add, T_VENT_2_add, T_TEMP_2_add, T_SW_FAN_2_add, T_SW_HEATER_2_add, T_TIME_3_add, T_VENT_3_add, T_TEMP_3_add, T_SW_FAN_3_add, T_SW_HEATER_3_add, T_TIME_4_add, T_VENT_4_add, T_TEMP_4_add, T_SW_FAN_4_add, T_SW_HEATER_4_add, T_TIME_5_add, T_VENT_5_add, T_TEMP_5_add, T_SW_FAN_5_add, T_SW_HEATER_5_add, T_TIME_6_add, T_VENT_6_add, T_TEMP_6_add, T_SW_FAN_6_add, T_SW_HEATER_6_add, T_TIME_7_add, T_VENT_7_add, T_TEMP_7_add, T_SW_FAN_7_add, T_SW_HEATER_7_add]);
-
-
-// RTK-5882A10CDADC
-const message = ref("");
-// let myClient = new Paho.Client('RTK-88B0BF3BDAEC', Number(8080), "/ws"); // в режиме точки доступа, работает с компа
-// let myClient = new Paho.Client("test.mosquitto.org", Number(8080), "/ws"); // работает с телефона в режиме станции
-// let myClient = new Paho.Client(`RTK-${SN}`, Number(8080), "/ws"); // в режиме точки доступа, работает с компа
 let myClient
-// console.log(host, port);
-// let myClient = new Paho.Client(host, Number(port), "/ws"); // в режиме точки доступа, работает с компа и с телефона
+const fnMarkerLabel = [0,  35];
+const fanMarkerLabel = [60, 100];
+const HumMarkerLabel = [0,  100]
+
 if (currentSystem.mode == 'Станция (онлайн)'){
   if (currentSystem.auth == true){
     myClient = new Paho.Client(
@@ -2790,7 +2704,7 @@ if (currentSystem.mode == 'Станция (онлайн)'){
       Number(port),
       "clientId_" + Math.random().toString(16).substr(2, 8)
     );
-    myClient.connect({ userName: currentSystem.login, password: currentSystem.password, useSSL: true, onSuccess: onConnect, onFailure: onFailure, timeout: 6000 });
+    myClient.connect({ userName: currentSystem.login, password: currentSystem.password, useSSL: true, onSuccess: onConnect, onFailure: onFailure, timeout: 3000 });
   }
   else{
     myClient = new Paho.Client(
@@ -2799,7 +2713,7 @@ if (currentSystem.mode == 'Станция (онлайн)'){
       "/ws",
       "clientId_" + Math.random().toString(16).substr(2, 8)
     );
-    myClient.connect({ onSuccess: onConnect, onFailure: onFailure, timeout: 6000 });
+    myClient.connect({ onSuccess: onConnect, onFailure: onFailure, timeout: 3000 });
   }
 
 }
@@ -2809,12 +2723,13 @@ else{
   Number(port),
   "clientId_" + Math.random().toString(16).substr(2, 8)
 ); // в режиме точки доступа, работает с компа и с телефона
-myClient.connect({ onSuccess: onConnect, onFailure: onFailure, timeout: 6000 });
+myClient.connect({ onSuccess: onConnect, onFailure: onFailure, timeout: 3000 });
 }
+
+
 
 function onFailure() {
   $q.loading.hide();
-  // spinnerActive.value = false;
   router.replace("/");
 }
 
@@ -2823,7 +2738,6 @@ function changeMode() {
     ? JSON.parse(localStorage.getItem("systems"))
     : [];
   if (port == 8883) {
-    // console.log(MQTT_HOST.value.val);
     let existingSystemIndex;
     let newObj = {
       Name: name,
@@ -2831,25 +2745,23 @@ function changeMode() {
       Host: MQTT_HOST.value.val,
       Port: 8080,
       Connection: "Станция (онлайн)",
+
     };
-    // console.log(newObj);
     if (systems.value) {
       existingSystemIndex = systems.value.findIndex(
         (system) =>
           system.SN == newObj.Number && system.mode == newObj.Connection
       );
-      // console.log(existingSystemIndex);
       if (existingSystemIndex == -1) {
         systems.value.push({
           name: newObj.Name,
           SN: newObj.Number,
           host: MQTT_HOST.value.val,
-          port: 8081,
+          port: 8080,
           mode: newObj.Connection,
+          auth: false,
         });
         localStorage.setItem("systems", JSON.stringify(systems.value));
-
-        // console.log(systems.value);
       }
     }
   }
@@ -2865,7 +2777,6 @@ myClient.onMessageArrived = (message) => {
   gotMessages++;
   recievedMessage.value = JSON.parse(message.payloadString);
   if (recievedMessage.value.topic == `/IoTmanager/RTK-${SN}/config`) {
-    // console.log(recievedMessage.value);
   }
   try {
     if (message.topic == `/IoTmanager/RTK-${SN}/config`) {
@@ -2873,28 +2784,24 @@ myClient.onMessageArrived = (message) => {
         !topicsArr.value.find((elem) => elem.id == recievedMessage.value.id)
       ) {
         topicsArr.value.push(recievedMessage.value);
-        // console.log(topicsArr.value)
       }
       gotHumdity.value = topicsArr.value.find(
         (elem) => elem.topic == `/IoTmanager/RTK-${SN}/H10`
       );
     }
     if (message.topic != `/IoTmanager/RTK-${SN}/config`) {
-      // console.log(message.topic, recievedMessage.value )
       rtkArray.value.forEach((obj) => {
         if (typeof obj == "object" && !obj.value.blocked) {
           if (typeof obj.value.topic != "undefined") {
             if (`${obj.value.topic}/status` == message.topic) {
               obj.value.val = recievedMessage.value.status;
               if (obj.value.topic == `/IoTmanager/RTK-${SN}/TCANCEL`) {
-                // console.log(recievedMessage.value);
                 obj.value.val = recievedMessage.value.status;
                 confirm.value = true;
                 $q.loading.hide();
               }
               if (isNumber(recievedMessage.value.status)) {
                 if (obj.value.topic == `/IoTmanager/RTK-${SN}/SW_TABLE`) {
-                  // console.log("sw table");
                 }
                 if (
                   obj.value.topic == `/IoTmanager/RTK-${SN}/SW_TABLE` ||
@@ -2920,11 +2827,9 @@ myClient.onMessageArrived = (message) => {
                   } else {
                     obj.value.val = false;
                   }
-                  // obj.value.val =
-                  //   parseInt(recievedMessage.value.status) == true;
                 } else if (
                   obj.value.topic == `/IoTmanager/RTK-${SN}/WIFI_AP_SSID` ||
-                  obj.value.topic == `/IoTmanager/RTK-${SN}/PASS` ||
+                  obj.value.topic == `/IoTmanager/RTK-${SN}/WIFI_AP_PASS` ||
                   obj.value.topic == `/IoTmanager/RTK-${SN}/WIFI_SSID` ||
                   obj.value.topic == `/IoTmanager/RTK-${SN}/WIFI_PASS` ||
                   obj.value.topic == `/IoTmanager/RTK-${SN}/MQTT_HOST` ||
@@ -2951,15 +2856,12 @@ myClient.onMessageArrived = (message) => {
                       parseInt(recievedMessage.value.status)
                     ];
                 } else if (obj.value.topic == `/IoTmanager/RTK-${SN}/T_WDAY`) {
-                  console.log(recievedMessage.value.status);
                   if (
                     weekDays.value[parseInt(recievedMessage.value.status)] == ""
                   ) {
-                    console.log('empty')
                   }
                   obj.value.val =
                     weekDays.value[parseInt(recievedMessage.value.status)];
-                    console.log(obj.value.val)
                   if (T_MODE.value.val == 'ОФИС' || T_MODE.value.val == 'РАБОЧАЯ НЕДЕЛЯ'){
                     if (obj.value.val == 'СБ' || obj.value.val == 'ВС' ){
                       weekDayWW.value = 'Выходные'
@@ -2967,11 +2869,7 @@ myClient.onMessageArrived = (message) => {
                     else{
                       weekDayWW.value = 'Будни'
                     }
-                  // if (recievedMessage.value.status == '' ){
-                  //   weekDayWW.value = '';
-                  // }
-
-                  }
+                                    }
                   if (T_MODE.value.val == 'ИНДИВИДУАЛЬНАЯ'){
                     weekDays.value[parseInt(recievedMessage.value.status)];
                   }
@@ -2993,7 +2891,6 @@ myClient.onMessageArrived = (message) => {
                 }
               } else {
                 obj.value.val = recievedMessage.value.status;
-                // console.log(obj.value.val)
               }
             }
           }
@@ -3009,10 +2906,11 @@ const showWindowForVent = ref(false);
 const showWindowForHum = ref(false);
 
 myClient.onConnectionLost = onConnectionLost;
+
 function sendMessage(payload, destination) {
   const message = new Paho.Message(payload);
   message.destinationName = destination;
-  // message.qos = 1;
+  message.qos = 1;
   try {
     myClient.send(message);
   } catch {
@@ -3020,7 +2918,6 @@ function sendMessage(payload, destination) {
   }
 }
 function disconnectMqtt() {
-  // console.log("disconnect mqtt");
   if (myClient) {
     try {
       myClient.unsubscribe("#");
@@ -3033,7 +2930,6 @@ function disconnectMqtt() {
 }
 let counter = 0;
 function connectMqtt() {
-  // console.log("connect mqtt");
   disconnectMqtt();
   myClient = new Paho.Client(
     host,
@@ -3042,18 +2938,15 @@ function connectMqtt() {
   );
 
   myClient.onConnectionLost = onConnectionLost;
-  myClient.connect({ onSuccess: onConnect });
+  myClient.connect({ onSuccess: onConnect, onFailure: onFailure });
 }
 function onConnectionLost(responseObject) {
-  // console.log("connection lost");
   if (responseObject.errorCode !== 0) {
     counter++;
-    if (counter > 5) {
-      // console.log("Failed to connect to MQTT server after 10 attempts.");
+    if (counter > 3) {
       counter = 0;
-      router.replace("/");
+       router.replace("/");
     } else {
-      // console.log("Connection lost. Attempting to reconnect...");
       setTimeout(connectMqtt, 2000);
     }
   }
@@ -3061,7 +2954,6 @@ function onConnectionLost(responseObject) {
 myClient.onConnected = () => {
   rtkArray.value.forEach((topic) => {
     if (topic.value.topic == `/IoTmanager/RTK-${SN}/config`) {
-      // sendMessage('HELLO', topic.value.topic);
       myClient.subscribe(`${topic.value.topic}`);
     } else {
       myClient.subscribe(`${topic.value.topic}/status`);
@@ -3077,23 +2969,16 @@ myClient.onConnected = () => {
       $q.loading.hide()
       clearInterval(test);
       let found = 0;
-      console.log(gotMessages);
       if (gotMessages == 0){
         myClient.disconnect();
         router.replace("/")
       }
     }
   }, 2000);
-
-      // sendMessage("HELLO", "/IoTmanager");
-      // $q.loading.hide()
-      // spinnerActive.value = false;
-
-  // console.log("on connected");
 };
 function onConnect() {
-  // console.log("Mqtt connected");
   sendMessage("HELLO", "/IoTmanager");
+  hasLoaded.value = true;
 }
 
 const recievedMessage = ref();
@@ -3182,10 +3067,7 @@ function openSchedule() {
 
 onBeforeMount(() => {
   var platform = navigator.userAgent;
-  // console.log(platform);
   const isNew = localStorage.getItem("added");
-  // console.log(isNew == null);
-  // isSpinner.value = false;
 });
 
 const response = ref(null);
@@ -3193,9 +3075,7 @@ const response = ref(null);
 // Запись в РТК
 
 function writeSet(target) {
-  // console.log(target);
   sendMessage(JSON.stringify(target.val), `${target.topic}/control`);
-  // client.publish(`${target.topic}/control`, JSON.stringify(target.val));
   submitted.value = false;
   target.blocked = false;
 }
@@ -3206,8 +3086,13 @@ function reloadBtnPressed(target) {
   router.push("/");
 }
 function writeScheduleSet(target) {
+  if (target.val == '--:--'){
+    sendMessage(JSON.stringify(''), `${target.topic}/control`);
+  }
+  else{
     sendMessage(target.val, `${target.topic}/control`);
-  target.blocked = false;
+  }
+    target.blocked = false;
 }
 function chooseFromList(target, dictionary) {
   sendMessage(
@@ -3216,184 +3101,7 @@ function chooseFromList(target, dictionary) {
   );
   target.blocked = false;
 }
-let array = [T_TIME_1.value, T_TIME_2.value, T_TIME_3.value, T_TIME_4.value, T_TIME_5.value, T_TIME_6.value, T_TIME_7.value];
-let valuesArray
-function immediateWrite() {
-  valuesArray = [T_TIME_1.value.val, T_TIME_2.value.val, T_TIME_3.value.val, T_TIME_4.value.val, T_TIME_5.value.val, T_TIME_6.value.val, T_TIME_7.value.val]
-  // valuesArray.sort()
-  console.log(valuesArray)
-  let iterations = 5;
-  let start = 1;
-  myPromise(2000, iterations, start).then(() => {
-    console.log('successful')
-  });
-}
 
-function myPromise(time, iterations, start) {
-  let promise = Promise.resolve();
-  for (let i = start; i <= iterations; i++) { // перебираем дни недели
-    promise = promise.then(() => {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-
-          sendMessage(JSON.stringify(i), `/IoTmanager/RTK-${SN}/T_WDAY/control`); // отправляем поочередно номера дней
-          console.log(`Отправлено значение ${i} на тег /IoTmanager/RTK-${SN}/T_WDAY/control`);
-          setTimeout(() => {
-            sendNulls(i).then(() => {
-              sendTimeMessages(i).then(() => {
-                resolve();
-              });
-            });
-          }, 3000);
-        }, time);
-      });
-    });
-  }
-
-  return promise;
-}
-function sendNulls(i) {
-  let promise = Promise.resolve();
-
-  for (let i = 0; i < array.length; i++){
-    promise = promise.then(() => {
-      return new Promise((resolve, reject) => {
-
-          sendMessage('', `${array[i].topic}/control`);
-
-        console.log(`Отправлено значение - на тег ${array[i].topic}/control`);
-        setTimeout(() => {
-          array[i].blocked = false;
-          resolve();
-        }, 2000)
-      });
-    });
-  }
-
-  return promise;
-}
-function sendTimeMessages(i) {
-  let promise = Promise.resolve();
-
-  for (let i = 0; i < array.length; i++){
-    promise = promise.then(() => {
-      return new Promise((resolve, reject) => {
-        if (valuesArray[i] == '' || valuesArray[i] == '--:--'){
-          sendMessage('', `${array[i].topic}/control`);
-        }
-        else{
-          sendMessage(valuesArray[i], `${array[i].topic}/control`);
-        }
-
-        console.log(`Отправлено значение ${valuesArray[i]} на тег ${array[i].topic}/control`);
-        setTimeout(() => {
-          array[i].blocked = false;
-          resolve();
-        }, 2000)
-      });
-    });
-  }
-
-  return promise;
-}
-// function immediateWrite(){
-//   myPromise(2000, 6, 1).then(() => {
-//     console.log('successful')
-//   });
-
-//   function myPromise(time, iterations, start) {
-//   let promise = Promise.resolve();
-//   for (let i = start; i < iterations; i++) { // перебираем дни недели
-//     promise = promise.then(() => {
-//       return new Promise((resolve, reject) => {
-//         setTimeout(() => {
-//           sendMessage(JSON.stringify(i), `/IoTmanager/RTK-${SN}/T_WDAY/control`); // отправляем поочередно номера дней
-//           console.log(3000)
-//           setTimeout(() => {
-//               sendMessage('12:00', `${T_TIME_1.value.topic}/control`);
-//               sendMessage('13:00', `${T_TIME_2.value.topic}/control`);
-//               sendMessage('14:00', `${T_TIME_3.value.topic}/control`);
-//               sendMessage('15:00', `${T_TIME_4.value.topic}/control`);
-//               sendMessage('16:00', `${T_TIME_5.value.topic}/control`);
-//               sendMessage('17:00', `${T_TIME_6.value.topic}/control`);
-//               sendMessage('18:00', `${T_TIME_7.value.topic}/control`);
-
-//             console.log(1000)
-//             // sendMessage(val, `${target.topic}/control`);
-//             resolve();
-//           }, 2000);
-//         }, time);
-//       });
-//     });
-//   }
-//   return promise;
-// }
-
-
-function writeScheduleSetMultiple(target, val) {
-  console.log(val);
-  if (T_MODE.value.val == "ИНДИВИДУАЛЬНАЯ") {
-    sendMessage(target.val, `${target.topic}/control`);
-    target.blocked = false;
-  }
-
-  if (T_MODE.value.val == "ВСЕ ВРЕМЯ ДОМА") {
-    isPromise.value = true;
-    $q.loading.show({
-      delay: 200 // ms
-    })
-    // spinnerActive.value = true;
-    target.blocked = false;
-    promiseMess(2000, 7, target, val, 0).then(() => {
-      // spinnerActive.value = false;
-      $q.loading.hide()
-      isPromise.value = false;
-      // console.log("Все итерации завершены");
-    });
-  }
-  if (T_MODE.value.val == "РАБОЧАЯ НЕДЕЛЯ" || T_MODE.value.val == "ОФИС") {
-    isPromise.value = true;
-    // spinnerActive.value = true;
-    $q.loading.show({
-      delay: 200 // ms
-    })
-    if (weekDayWW.value == "Будни") {
-      promiseMess(2000, 6, target, val, 1).then(() => {
-        // spinnerActive.value = false;
-        $q.loading.hide()
-        isPromise.value = false;
-        // console.log("Все итерации завершены");
-      });
-    }
-
-    if (weekDayWW.value == "Выходные") {
-      setTimeout(() => {
-        // console.log(`Выходные`);
-        // console.log(val);
-        sendMessage(JSON.stringify(0), `/IoTmanager/RTK-${SN}/T_WDAY/control`);
-        setTimeout(() => {
-          sendMessage(val, `${target.topic}/control`);
-          // spinnerActive.value = false;
-          // $q.loading.hide()
-          isPromise.value = false;
-          // resolve();
-        }, 1000);
-      }, 2000);
-
-      setTimeout(() => {
-        // console.log(`Выходные`);
-        // console.log(val);
-        sendMessage(JSON.stringify(6), `/IoTmanager/RTK-${SN}/T_WDAY/control`);
-        setTimeout(() => {
-          sendMessage(val, `${target.topic}/control`);
-          $q.loading.hide()
-          // spinnerActive.value = false;
-          isPromise.value = false;
-        }, 4000);
-      }, 6000);
-    }
-  }
-}
 function toggle(target, dict) {
   let preparedValue;
   if (
@@ -3408,7 +3116,6 @@ function toggle(target, dict) {
     }
     sendMessage(JSON.stringify(preparedValue), `${target.topic}/control`);
   }
-
   if (
     target.topic == `/IoTmanager/RTK-${SN}/T_SW_FAN_1` ||
     target.topic == `/IoTmanager/RTK-${SN}/T_SW_HEATER_1` ||
@@ -3425,96 +3132,13 @@ function toggle(target, dict) {
     target.topic == `/IoTmanager/RTK-${SN}/T_SW_FAN_7` ||
     target.topic == `/IoTmanager/RTK-${SN}/T_SW_HEATER_7`
   ) {
-    if (T_MODE.value.val == "ИНДИВИДУАЛЬНАЯ") {
+
       if (target.val == true) {
         preparedValue = 1;
       } else {
         preparedValue = 0;
       }
       sendMessage(JSON.stringify(preparedValue), `${target.topic}/control`);
-    }
-
-    if (T_MODE.value.val == "ВСЕ ВРЕМЯ ДОМА") {
-      isPromise.value = true;
-      $q.loading.show({
-        delay: 200 // ms
-      })
-      // spinnerActive.value = true;
-      if (target.val == true) {
-        preparedValue = 1;
-      } else {
-        preparedValue = 0;
-      }
-      promiseMess(2000, 7, target, JSON.stringify(preparedValue), 0).then(
-        () => {
-          $q.loading.hide()
-          // spinnerActive.value = false;
-          isPromise.value = false;
-          // console.log("Все итерации завершены");
-        }
-      );
-      target.blocked = false;
-    }
-
-    if (T_MODE.value.val == "РАБОЧАЯ НЕДЕЛЯ" || T_MODE.value.val == "ОФИС") {
-      isPromise.value = true;
-      // spinnerActive.value = true;
-      $q.loading.show({
-        delay: 200 // ms
-      })
-      // console.log(weekDayWW.value);
-      if (target.val == true) {
-        preparedValue = 1;
-      } else {
-        preparedValue = 0;
-      }
-      if (weekDayWW.value == "Будни") {
-        promiseMess(2000, 6, target, JSON.stringify(preparedValue), 1).then(
-          () => {
-            $q.loading.hide()
-            // spinnerActive.value = false;
-            isPromise.value = false;
-            console.log("Все итерации завершены");
-          }
-        );
-      }
-
-      if (weekDayWW.value == "Выходные") {
-        setTimeout(() => {
-          // console.log(`Выходные`);
-          sendMessage(
-            JSON.stringify(0),
-            `/IoTmanager/RTK-${SN}/T_WDAY/control`
-          );
-          setTimeout(() => {
-            sendMessage(
-              JSON.stringify(preparedValue),
-              `${target.topic}/control`
-            );
-            // spinnerActive.value = false;
-            isPromise.value = false;
-          }, 1000);
-        }, 2000);
-
-        setTimeout(() => {
-          // console.log(`Выходные`);
-          sendMessage(
-            JSON.stringify(6),
-            `/IoTmanager/RTK-${SN}/T_WDAY/control`
-          );
-          setTimeout(() => {
-            sendMessage(
-              JSON.stringify(preparedValue),
-              `${target.topic}/control`
-            );
-            $q.loading.hide()
-            // spinnerActive.value = false;
-            isPromise.value = false;
-          }, 4000);
-        }, 6000);
-      }
-      target.blocked = false;
-    }
   }
   if (target.topic == `/IoTmanager/RTK-${SN}/AP`) {
     if (target.val == false) {
@@ -3526,42 +3150,68 @@ function toggle(target, dict) {
     sendMessage(preparedValue, `${target.topic}/control`);
   }
 }
+const PullToRefresh = ref(false)
+let startY;
+function handleTouchStart(event) {
+  startY = event.touches[0].clientY;
+}
+let threshold = 100;
 
-function promiseMess(time, iterations, target, val, start) {
-  let promise = Promise.resolve();
-  for (let i = start; i < iterations; i++) {
-    promise = promise.then(() => {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          sendMessage(
-            JSON.stringify(i),
-            `/IoTmanager/RTK-${SN}/T_WDAY/control`
-          );
-          setTimeout(() => {
-            sendMessage(val, `${target.topic}/control`);
-            resolve();
-          }, 1000);
-        }, time);
-      });
-    });
+function handleTouchMove(event) {
+  let currentY = event.touches[0].clientY;
+  let distance = currentY - startY;
+
+  if (distance > threshold && startY < 150) {
+    PullToRefresh.value = true;
+
+    const test = setInterval(() => {
+    counter++;
+    if (counter < 3) {
+      sendMessage("HELLO", "/IoTmanager");
+    } else {
+      PullToRefresh.value = false;
+      clearInterval(test);
+    }
+  }, 2000);
+
   }
-  // $q.loading.hide(); ////////////////////
-  return promise;
 }
 
-onBeforeMount(() => {
-  // isSpinner.value = false;
-});
 onMounted(() => {
   let el = document.createElement('div');
   document.body.appendChild(el);
+  let loadingCounter = 0;
+
+  const counter = setInterval(() => {
+    if (loadingCounter < 10 && !hasLoaded.value){
+      loadingCounter++;
+    }
+    if ((loadingCounter >= 10 && !hasLoaded.value)){
+      try{
+        disconnectMqtt();
+      }
+      catch(e){
+
+      }
+      $q.loading.hide();
+      clearInterval(counter);
+      router.replace('/');
+    }
+    if (loadingCounter < 8 && hasLoaded.value){
+      clearInterval(counter)
+    }
+  }, 1000)
+
   darkThemeMq.value = window.matchMedia("(prefers-color-scheme: light)");
   redoColor();
+
+  document.addEventListener('touchstart', handleTouchStart, false);
+  document.addEventListener('touchmove', handleTouchMove, false);
+
 });
 
 function redoColor() {
   let a = localStorage.getItem("isDark");
-  // console.log(a);
   const changeable = ref(document.getElementById("mainLayout"));
   if (!a) {
     isDark.value = false;
@@ -3569,8 +3219,8 @@ function redoColor() {
     labelColor.value = "text-black";
     mainColor.value = "black";
     computedClass.value = "my-card-light";
-    changeable.value.classList.remove("bg-grey-9", "text-white");
-    changeable.value.classList.add("bg-grey-2", "text-black");
+    changeable.value.classList.remove("bgc-dark-class", "text-white");
+    changeable.value.classList.add("bgc-light-class", "text-black");
   }
   if (a == true || a === "true") {
     isDark.value = false;
@@ -3578,8 +3228,8 @@ function redoColor() {
     labelColor.value = "text-black";
     mainColor.value = "black";
     computedClass.value = "my-card-light";
-    changeable.value.classList.remove("bg-grey-9", "text-white");
-    changeable.value.classList.add("bg-grey-2", "text-black");
+    changeable.value.classList.remove("bgc-dark-class", "text-white");
+    changeable.value.classList.add("bgc-light-class", "text-black");
   }
   if (a == false || a === "false") {
     isDark.value = true;
@@ -3587,19 +3237,15 @@ function redoColor() {
     labelColor.value = "text-white";
     mainColor.value = "white";
     computedClass.value = "my-card-dark";
-    changeable.value.classList.remove("bg-grey-2", "text-black");
-    changeable.value.classList.add("bg-grey-9", "text-white");
+    changeable.value.classList.remove("bgc-light-class", "text-black");
+    changeable.value.classList.add("bgc-dark-class", "text-white");
   }
 }
-
-// Задержка перед возвращением старой уставки
-const submitted = ref(false); // нажата кнопка "подтвердить ввод"
+const submitted = ref(false);
 
 function waitForSubmit(target) {
   setTimeout(() => {
-    console.log(target)
     target.blocked = false;
-    // console.log("reset");
     sendMessage("HELLO", "/IoTmanager");
     submitted.value = false;
   }, 5000);
@@ -3607,10 +3253,18 @@ function waitForSubmit(target) {
 </script>
 
 <style>
+@font-face {
+  font-family: "HelveticaRegular";
+  src: url('../fonts/00_Helvetica/HelveticaRegular/HelveticaRegular.eot') format('eot'),
+        url('../fonts/00_Helvetica/HelveticaRegular/HelveticaRegular.ttf') format('ttf'),
+        url('../fonts/00_Helvetica/HelveticaRegular/HelveticaRegular.woff') format('woff'),
+  ;
+  font-weight: normal;
+}
 .my-card-dark {
   width: 93vw;
   margin: 0 auto;
-  background-color: #777777;
+  background-color: #878787;
   flex-direction: column;
   margin-bottom: 10px;
   display: flex;
@@ -3621,13 +3275,46 @@ function waitForSubmit(target) {
 .my-card-light {
   width: 93vw;
   margin: 0 auto;
-  background-color: #eeeeee;
+  background-color: #ffffff;
   flex-direction: column;
   margin-bottom: 10px;
   display: flex;
   justify-items: flex-start;
   font-size: 16px;
   color: black;
+  text-color: black;
+}
+.btn-light-class{
+  background-color: #e3e3e3;
+  color: white;
+}
+.btn-dark-class{
+  background-color: #009453;
+  color: white;
+}
+.bgc-light-class {
+  background-color: #e3e3e3;
+}
+.bgc-dark-class {
+  background-color: #3c3c3b;
+}
+.no-underline{
+  border-bottom: 2px solid #ed6c05;
+}
+.underline{
+  border-bottom: 2px solid white;
+}
+.no-underline1{
+  border-bottom: 2px solid #ed6c05;
+}
+.underline1{
+  border-bottom: 2px solid white;
+}
+.no-underline2{
+  border-bottom: 2px solid #ed6c05;
+}
+.underline2{
+  border-bottom: 2px solid white;
 }
 .navbar {
   display: flex;
@@ -3701,63 +3388,4 @@ function waitForSubmit(target) {
 .dark {
   color: rgb(223, 223, 223);
 }
-
-/* .loader {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  position: relative;
-  animation: rotate 1s linear infinite;
-}
-.loader::before,
-.loader::after {
-  content: "";
-  box-sizing: border-box;
-  position: absolute;
-  inset: 0px;
-  border-radius: 50%;
-  border: 5px solid #00897b;
-  animation: prixClipFix 2s linear infinite;
-}
-.loader::after {
-  inset: 8px;
-  transform: rotate3d(90, 90, 0, 180deg);
-  border-color: #ff6f24;
-}
-.knobOutlined {
-  border: solid 5px rgba(0, 0, 0, 0.062);
-  border-radius: 100%;
-}
-@keyframes rotate {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes prixClipFix {
-  0% {
-    clip-path: polygon(50% 50%, 0 0, 0 0, 0 0, 0 0, 0 0);
-  }
-  50% {
-    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 0, 100% 0, 100% 0);
-  }
-  75%,
-  100% {
-    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 100% 100%, 100% 100%);
-  }
-}
-
-.button__progress {
-  position: absolute;
-  height: 100%;
-
-  border-radius: 25px;
-  top: 0;
-  left: 0;
-  background: rgba(0, 0, 0, 0.2);
-  /* transition: width 0.3s;
-} */
 </style>

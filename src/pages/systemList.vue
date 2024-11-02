@@ -1,16 +1,14 @@
 <template>
   <q-layout
     style="padding-bottom: 15px"
-    class="bg-grey-9 text-white"
+    class="bgc-dark-class text-white"
     id="mainLayout"
   >
-    <!-- <span v-if="isSpinner" class="loader"></span> -->
-    <!-- Выбор системы мониторинга -->
     <div style="height: auto">
       <q-label
         style="
           padding: 10px;
-          font-family: 'Roboto', sans-serif;
+          font-family: 'HelveticaRegular';
           font-size: 20px;
           display: flex;
           flex-direction: column;
@@ -47,7 +45,7 @@
               <div
                 @click="
                   () => {
-                    checkConnections();
+                    tryToDisconnect();
                     router.replace(
                       `RTK/${system.SN}/${system.port}/${system.host}/${system.name}/${system.mode}`
                     );
@@ -113,10 +111,13 @@
           margin: 0 auto;
           padding-top: -5px;
           padding-bottom: -5px;
+          background-color: #00692f;
+          color: white;
+          font-size: 16px
         "
         rounded
+        no-caps
         class="q-ma-md"
-        color="teal-7"
         @click="
           () => {
             addSys = true;
@@ -126,113 +127,7 @@
         >Добавить устройство</q-btn
       >
 
-      <!-- <q-dialog persistent v-model="changeSys">
-      <q-card :class="computedClass" :dark="isDark">
-        <q-toolbar style="background-color: #ff6f24">
-          <q-toolbar-title style="font-size: 18px"
-            ><span>Добавление системы</span></q-toolbar-title
-          >
-
-          <q-btn
-            @click="
-              () => {
-                connectionType = '';
-                systName = '';
-                serialNumber = '';
-                host = '';
-                errMessage = false;
-              }
-            "
-            flat
-            round
-            dense
-            icon="close"
-            v-close-popup
-          />
-        </q-toolbar>
-        <div
-          style="
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 20px;
-          "
-        >
-          <q-select
-            v-model="connectionType"
-            :options="connectTypes"
-            label="Тип подкючения"
-            :color="isDark"
-            :dark="isDark"
-            popup-content-style="font-size: 16px"
-            options-style="font-size: 16px;"
-            style="width: 83vw; margin-top: 10px"
-          />
-          <q-input
-            :dark="isDark"
-            outlined
-            v-model="systName"
-            label="Наименование"
-            hint="Пример: РТК Кухня"
-            style="width: 85vw; margin-top: 10px"
-          />
-          <q-input
-            :dark="isDark"
-            outlined
-            v-model="serialNumber"
-            label="Серийный номер"
-            hint="Пример: 8882A10CVD78"
-            style="width: 85vw; margin-top: 5px"
-          />
-          <q-input
-            :dark="isDark"
-            outlined
-            v-model="host"
-            label="Хост (брокер)"
-            hint="Пример: test.mosquitto.org"
-            style="width: 85vw; margin-top: 5px"
-          />
-
-          <div
-            style="
-              margin-top: 20px;
-              display: flex;
-              flex-direction: row;
-              justify-content: space-between;
-              width: 80vw;
-            "
-          >
-            <q-btn
-              rounded
-              color="teal-7"
-              label="Поиск (точка доступа)"
-              @click="searchForNewSys()"
-            />
-            <q-btn
-              rounded
-              color="orange-9"
-              :disable="
-                serialNumber == undefined ||
-                host == undefined ||
-                systName == undefined ||
-                errMessage
-              "
-              label="Сохранить"
-              @click="addSystem()"
-              v-close-popup
-            />
-          </div>
-          <div
-            v-if="errMessage"
-            style="color: red; margin: 0 auto; margin-top: 10px"
-          >
-            Устройство недоступно!
-          </div>
-        </div>
-      </q-card>
-    </q-dialog> -->
-
-      </q-scroll-area>
+            </q-scroll-area>
 
       <q-card
         :class="computedClass"
@@ -326,6 +221,7 @@
                     createNewSys = false;
                     onSubmit();
                     myClient.disconnect();
+                    isSysFound = false;
                   }
                 "
                 ><b>Сохранить</b></q-btn>
@@ -341,7 +237,10 @@
                 rounded
                 class="q-ma-md"
                 color="teal-7"
-                @click="cancelCreation"
+                @click="() => {
+                  cancelCreation();
+                  isSysFound = false;
+                }"
                 ><b>Отмена</b></q-btn
               >
             </div>
@@ -349,10 +248,11 @@
         </q-card-section>
       </q-card>
     </div>
-    <q-dialog persistent v-model="addSys">
-      <q-card :class="computedClass" :dark="isDark">
+
+    <q-dialog persistent v-model="addSys" >
+      <q-card :class="computedClass" :dark="isDark" style="max-width: 500px">
         <q-toolbar style="background-color: #ff6f24">
-          <q-toolbar-title style="font-size: 18px"
+          <q-toolbar-title style="font-size: 18px; color: white"
             ><span>Добавление системы</span></q-toolbar-title
           >
 
@@ -363,14 +263,21 @@
                 systName = '';
                 serialNumber = '';
                 host = '';
+                port = '';
+                security = false;
+                userName = '';
+                pass = '';
                 errMessage = false;
+                isSysFound = false;
               }
             "
             flat
             round
             dense
             icon="close"
+            color="white"
             v-close-popup
+            no-caps
           />
         </q-toolbar>
         <div
@@ -384,12 +291,16 @@
           <q-select
             v-model="connectionType"
             :options="connectTypes"
-            label="Тип подкючения"
+            label="Тип подключения"
             :color="isDark"
             :dark="isDark"
             popup-content-style="font-size: 16px"
             options-style="font-size: 16px;"
-            style="width: 83vw; margin-top: 10px"
+            style="width: 95%; margin-top: 10px"
+            :disable="isSysFound"
+            @update:model-value="() =>{
+              errMessage = false;
+            }"
           />
           <q-input
             :dark="isDark"
@@ -397,7 +308,7 @@
             v-model="systName"
             label="Наименование"
             hint="Пример: РТК Кухня"
-            style="width: 85vw; margin-top: 10px"
+            style="width: 95%; margin-top: 10px"
           />
           <q-input
             :dark="isDark"
@@ -405,7 +316,8 @@
             v-model="serialNumber"
             label="Серийный номер"
             hint="Пример: 8882A10CVD78"
-            style="width: 85vw; margin-top: 5px"
+            style="width: 95%; margin-top: 5px"
+            :disable="isSysFound"
           />
           <q-input
             :dark="isDark"
@@ -413,35 +325,69 @@
             v-model="host"
             label="Хост (брокер)"
             hint="Пример: test.mosquitto.org"
-            style="width: 85vw; margin-top: 5px"
+            style="width: 95%; margin-top: 5px"
+            :disable="isSysFound"
           />
+          <q-input v-if="connectionType == 'Станция (онлайн)'"
+            :dark="isDark"
+            outlined
+            v-model="port"
+            label="Порт"
+            hint="Пример: 8080"
+            style="width: 95%; margin-top: 5px"
+          />
+          <div v-if="connectionType == 'Станция (онлайн)'" style="width: 100%; display: flex; align-items: start">
+            <q-checkbox v-model="security" label="Защищенный (TLS)" color="orange-9"  :dark="isDark"/>
+          </div>
+          <q-input
+          v-if="security && connectionType == 'Станция (онлайн)'"
+            :dark="isDark"
+            outlined
+            v-model="userName"
+            label="Логин"
+            hint="Пример: u_Uty67Hg"
+            style="width: 95%; margin-top: 5px"
+          />
+          <q-input
+           v-if="security && connectionType == 'Станция (онлайн)'"
+            :dark="isDark"
+            outlined
+            v-model="pass"
+            label="Пароль"
+            hint="Пример: dfrt34f"
+            style="width: 95%; margin-top: 5px"
+          />
+
 
           <div
             style="
               margin-top: 20px;
               display: flex;
               flex-direction: row;
-              justify-content: space-between;
-              width: 80vw;
+              justify-content: center;
+              column-gap: 16px;
+              width: 95%;
             "
           >
             <q-btn
-              rounded
-              color="teal-7"
+              rounded no-caps
               label="Поиск (точка доступа)"
               @click="searchForNewSys()"
+              style="background-color: #00692f; color: white"
             />
-            <q-btn
+            <q-btn no-caps
               rounded
               color="orange-9"
               :disable="
                 serialNumber == undefined ||
                 host == undefined ||
-                systName == undefined ||
-                errMessage
+                systName == undefined
               "
               label="Сохранить"
-              @click="addSystem()"
+              @click="() => {
+                addSystem();
+                isSysFound = false;
+              }"
               v-close-popup
             />
           </div>
@@ -456,9 +402,9 @@
     </q-dialog>
 
     <q-dialog persistent v-model="changeSys">
-      <q-card :class="computedClass" :dark="isDark">
-        <q-toolbar style="background-color: #ff6f24">
-          <q-toolbar-title style="font-size: 18px"
+      <q-card :class="computedClass" :dark="isDark" style="max-width: 500px;">
+        <q-toolbar style="background-color: #ed6c05">
+          <q-toolbar-title style="font-size: 18px; color: white"
             ><span>Изменение системы</span></q-toolbar-title
           >
           <q-btn
@@ -469,11 +415,16 @@
                 serialNumber = '';
                 host = '';
                 errMessage = false;
+                port = '';
+                security = false;
+                userName = '';
+                pass = '';
               }
             "
             flat
             round
             dense
+            color="white"
             icon="close"
             v-close-popup
           />
@@ -489,12 +440,13 @@
           <q-select
             v-model="connectionType"
             :options="connectTypes"
-            label="Тип подкючения"
+            label="Тип подключения"
+            :disable="connectionType == 'Точка доступа'"
             :color="isDark"
             :dark="isDark"
             popup-content-style="font-size: 16px"
             options-style="font-size: 16px;"
-            style="width: 83vw; margin-top: 10px"
+            style="width: 95%; margin-top: 10px"
           />
           <q-input
             :dark="isDark"
@@ -502,7 +454,7 @@
             v-model="systName"
             label="Наименование"
             hint="Пример: РТК Кухня"
-            style="width: 85vw; margin-top: 10px"
+            style="width: 95%; margin-top: 10px"
           />
           <q-input
             :dark="isDark"
@@ -511,7 +463,7 @@
             v-model="serialNumber"
             label="Серийный номер"
             hint="Пример: 8882A10CVD78"
-            style="width: 85vw; margin-top: 5px"
+            style="width: 95%; margin-top: 5px"
           />
           <q-input
             :dark="isDark"
@@ -520,9 +472,38 @@
             v-model="host"
             label="Хост (брокер)"
             hint="Пример: test.mosquitto.org"
-            style="width: 85vw; margin-top: 5px"
+            style="width: 95%; margin-top: 5px"
           />
-
+          <q-input v-if="connectionType == 'Станция (онлайн)'"
+            :dark="isDark"
+            outlined
+            v-model="port"
+            label="Порт"
+            hint="Пример: 8080"
+            style="width: 95%; margin-top: 5px"
+          />
+          <div v-if="connectionType == 'Станция (онлайн)'" style="width: 100%; display: flex; align-items: start">
+            <q-checkbox v-model="security" label="Защищенный (TLS)" color="teal-7"
+            :dark="isDark"/>
+          </div>
+          <q-input
+          v-if="security && connectionType == 'Станция (онлайн)'"
+            :dark="isDark"
+            outlined
+            v-model="userName"
+            label="Логин"
+            hint="Пример: u_Uty67Hg"
+            style="width: 95%; margin-top: 5px"
+          />
+          <q-input
+           v-if="security && connectionType == 'Станция (онлайн)'"
+            :dark="isDark"
+            outlined
+            v-model="pass"
+            label="Пароль"
+            hint="Пример: dfrt34f"
+            style="width: 95%; margin-top: 5px"
+          />
           <div
             style="
               margin-top: 20px;
@@ -530,24 +511,101 @@
               flex-direction: row;
               justify-content: center;
               align-items: center;
-              width: 80vw;
+              width: 95%;
             "
           >
             <q-btn
               rounded
-              color="orange-9"
+              style="background-color: #ed6c05; color: white"
               :disable="
                 serialNumber == undefined ||
                 host == undefined ||
                 systName == undefined ||
                 errMessage
               "
+              no-caps
               label="Сохранить"
               @click="saveEditSystem()"
               v-close-popup
             />
           </div>
         </div>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog persistent v-model="showUserAgreement">
+      <q-card :class="computedClass" :dark="isDark" style="max-width: 500px;">
+        <q-toolbar style="background-color: #ed6c05">
+          <q-toolbar-title class="text-center" style="font-size: 18px; color: white"
+            ><span>Пользовательское соглашение</span></q-toolbar-title
+          >
+        </q-toolbar>
+      <div style="padding: 7px; display: flex; width: 100%; flex-direction: column; justify-items: center;">
+        <span style="text-align: center;">
+          <b style="font-size: 18px;">Пользовательское соглашение об использовании приложения ООО «НЕВАТОМ» «НЕВАТОМ РТК» для мобильных операционных систем Android. </b><br>
+        </span>
+        <span><b>1.	Общие положения</b></span>
+        <span style="text-align: justify;">
+          1.1.	Настоящее Пользовательское соглашение (далее - «Соглашение») регламентирует отношения между ООО «НЕВАТОМ» (далее – «Компания»), и дееспособным физическим лицом, надлежащим образом, присоединившимся к настоящему Соглашению для использования мобильного приложения «НЕВАТОМ РТК» (далее – «Пользователь»). <br>
+          1.2.	Мобильное приложение ООО «НЕВАТОМ» «НЕВАТОМ РТК» (далее – «Приложение») является программой для ЭВМ, представляющей собой приложение интернета вещей (IoT), разработанное для мобильных устройств, работающих под управлением операционной системы Android. Права интеллектуальной собственности на Приложение и его элементы принадлежат Компании.<br>
+          1.3.	Настоящее Соглашение является открытым и общедоступным документом.<br>
+          1.4.	Установка Пользователем на своем Мобильном терминале Приложения означает полное и безоговорочное согласие Пользователя со всеми условиями настоящего Соглашения и влечет заключение Соглашения об использовании Приложения на условиях настоящего Пользовательского соглашения об использовании приложения ООО «НЕВАТОМ» «НЕВАТОМ РТК» для мобильных операционных систем Android.<br>
+          1.5.	Условия настоящего Соглашения являются публичной офертой в соответствии со ст. 435 и п. 2 ст. 437 ГК РФ. Использование Пользователем Приложения означает полное и безоговорочное принятие Пользователем настоящего Соглашения в соответствии со ст. 438 ГК РФ.<br>
+          1.6.		Настоящее Соглашение может быть изменено и/или дополнено Компанией в одностороннем порядке, которое вступают в силу в день, следующий за днем опубликования таких изменений/дополнений в Приложении. При этом продолжение использования Приложения после внесения изменений и/или дополнений в настоящее Соглашение, означает согласие Пользователя с такими изменениями и/или дополнениями, в связи с чем Пользователь обязуется регулярно отслеживать изменения в соответствующем разделе в Приложении и в Соглашении.<br>
+          1.7.	Настоящее Соглашение составлено в соответствии с законодательством Российской Федерации. Вопросы, не урегулированные Соглашением, подлежат разрешению в соответствии с законодательством Российской Федерации.<br>
+          1.8.		Соглашаясь с условиями настоящего Соглашения, Пользователь подтверждает свою правоспособность и дееспособность.<br>
+        </span>
+        <span style="text-align: justify;">
+          <b>2.	Права и обязанности пользователя</b> <br>
+          2.1.	Пользователь обязуется надлежащим образом соблюдать условия настоящего Соглашения.<br>
+          2.2.	Пользователь обязуется не использовать Приложение для любых иных целей, кроме как для целей, связанных с личным некоммерческим использованием.<br>
+          2.3.	Пользователь обязуется перед использованием Приложения изучить инструкцию пользователя и не совершать действий, противоречащих ей.<br>
+          2.4.	Пользователь не вправе: продавать, переуступать, давать в пользование и аренду, распространять, передавать или иным образом предоставлять право на использование Мобильного приложения третьим лицам.<br>
+          2.5.	Пользователь обязуется, пользуясь Приложением, не вводить в заблуждение других Пользователей и третьих лиц.<br>
+          2.6.	Пользователь обязуется использовать Приложение только с оборудованием «Регулятор температуры канальный (РТК)» ООО «НЕВАТОМ».<br>
+          2.7.	Пользователь обязуется не изменять, не декомпилировать, не дизассемблировать, не дешифровать (декодировать), не переводить на другие языки, не нарушать целостность, не восстанавливать исходный код мобильного приложения или каких-либо его частей, а также не производить иные действия с объектным кодом и исходным текстом мобильного приложения, в частности, для целей получения информации о реализации алгоритмов, используемых в мобильном приложении<br>
+        </span>
+
+        <span style="text-align: justify;">
+          <b>3.	Права и обязанности Компании</b><br>
+          3.1.	Компания вправе передавать права и обязанности по настоящему Соглашению, третьим лицам в целях исполнения настоящего Соглашения без дополнительного согласия Пользователя.<br>
+          3.2.	Компания не несет ответственность за использование Приложения не по назначению и с нарушением инструкции пользователя.<br>
+          3.3.	Компания не несет ответственности за любые ошибки, прерывания, давление, дефекты, задержку в обработке или передаче данных, сбое линий связи, кражу, уничтожение или неправомерный доступ к материалам пользователей, размещенным в Приложении или в любом другом месте.<br>
+          3.4.	Компания вправе использовать Приложение в иных коммерческих, некоммерческих и/или рекламных целях.<br>
+          3.5.	Компания на свое усмотрение вправе вносить изменения в структуру, дизайн, наполнение Приложения, а также совершать любые видоизменения Приложения.<br>
+        </span>
+
+        <span style="text-align: justify;">
+          <b>4.	Гарантии и ответственность сторон</b><br>
+          4.1.		Пользователь гарантирует, что не будет предпринимать каких-либо действий, направленных на причинение ущерба обладателю прав на Приложение - «Компании» и иным лицам.<br>
+          4.2.	В случае нарушения правил использования Приложения, указанных в разделе 2 настоящего Соглашения, Пользователь обязуется возместить Компании вред, причиненный такими действиями.<br>
+        </span>
+        <span style="text-align: justify;">
+          <b>5.	Персональные данные</b><br>
+          5.1.	 Компания не собирает, не хранит и не обрабатывает персональные данные пользователя.<br>
+        </span>
+        <span style="text-align: justify;">
+          <b>6.	Ограничение ответственности</b><br>
+          6.1.	Компания не несет какой-либо ответственности за любые действия Пользователей. В том числе, Компания не несет ответственности за любые претензии третьих лиц в результате осуществления Пользователями действий, нарушающих права и законные интересы третьих лиц.<br>
+          6.2.	Компания освобождается от ответственности за любые убытки, претензии и требования, связанные с использованием Приложения.<br>
+          6.3.	Компания не несет ответственности за возможные ошибки, сбои, перерывы в работе Приложения и т.п., если подобные ошибки, сбои и перерывы и т.п. вызваны объективными обстоятельствами, находящимися вне зоны контроля Компании.<br>
+          6.4.	Компания не несет какой-либо ответственности за любые потери Пользователей в результате ошибок и неточностей, совершенных Пользователями.<br>
+        </span>
+        <span style="text-align: justify;">
+          <b>7.	Заключительные положения</b><br>
+          7.1.	Вопросы, не урегулированные настоящим Соглашением, подлежат разрешению в соответствии с законодательством Российской Федерации.<br>
+          7.2.	В случае возникновения любых споров или разногласий, связанных с исполнением настоящего Соглашения, Пользователь и Компания приложат все усилия для их разрешения путем проведения переговоров между ними. В случае, если споры не будут разрешены путем переговоров, споры подлежат разрешению в суде общей юрисдикции по месту нахождения Компании в порядке, установленном действующим законодательством Российской Федерации.<br>
+          7.3.	Настоящее Соглашение вступает в силу для Пользователя с момента подключения Пользователя к устройству РТК с помощью Приложения. Настоящее Соглашение действует бессрочно.<br>
+          7.4.	 Настоящее Соглашение составлено на русском языке.<br>
+          7.5.	Если какое-либо из положений настоящего Соглашения будет признано недействительным, это не оказывает влияния на действительность или применимость остальных положений настоящего Соглашения.<br>
+        </span>
+
+        <q-checkbox color="orange-9" v-model="userAgrNotAccepted" label="Я прочитал и согласен с условиями Пользовательского соглашения" />
+        <div style="width: 100%; display: flex; justify-content: center;">
+          <q-btn style="width: 70%" no-caps v-if="userAgrNotAccepted" rounded label="Подтвердить" color="orange-9" v-close-popup @click="saveUserAgreement" />
+        </div>
+
+      </div>
       </q-card>
     </q-dialog>
   </q-layout>
@@ -557,38 +615,14 @@
 import { ref, onMounted, onBeforeMount, inject, provide } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Paho from "paho-mqtt";
-// import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 
+const security = ref(false);
 const changeSys =  ref(false);
-// import { MyNsdManager } from "../../src-capacitor/android/app/src/plugins/my-nsd-manager";
-// const myNsdManager = ref(new MyNsdManager());
-
-// async function startDiscovery() {
-//   try {
-//     const result = await myNsdManager.value.startDiscovery();
-//     console.log(result);
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
-
-// async function stopDiscovery() {
-//   try {
-//     const result = await myNsdManager.value.stopDiscovery();
-//     console.log(result);
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
-
-// async function getServiceInfo() {
-//   try {
-//     const result = await myNsdManager.value.getServiceInfo();
-//     console.log(result);
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
+const userName = ref();
+const pass = ref();
+const port = ref();
+const showUserAgreement = ref();
+const userAgrNotAccepted = ref(false);
 
 const connectTypes = ["Точка доступа", "Станция (онлайн)", "Станция (оффлайн)"];
 const router = useRouter();
@@ -597,19 +631,12 @@ const labelColor = ref("text-white");
 const mainColor = ref("white");
 const addSys = ref(false);
 const serialNumber = ref();
-const connectionType = ref("Станция (онлайн)");
+const connectionType = ref("Точка доступа");
 const host = ref();
 const systems = ref([]);
 const systName = ref();
-// systems.value = localStorage.getItem('systems')
 
-const systemList = ref([
-  {
-    Name: "",
-    Host: "",
-    Port: 8080,
-  },
-]);
+
 const isDark = ref();
 const theme = ref();
 const bus = inject("bus");
@@ -617,13 +644,19 @@ const errMessage = ref(false);
 const computedClass = ref("my-card-dark");
 const editSys = ref(false);
 bus.on("themeChanged", (themeValue) => {
-  console.log("changed");
   redoColor();
 });
 const myClient = ref();
-
-function checkConnections() {
-  console.log(myClient.value);
+function tryToDisconnect(){
+  if (myClient.value){
+    try {
+      myClient.value.unsubscribe("#");
+      myClient.value.disconnect();
+      myClient.value = null;
+    } catch {
+      myClient.value = null;
+    }
+  }
 }
 function connectMqtt() {
   if (myClient.value) {
@@ -643,12 +676,11 @@ function connectMqtt() {
   myClient.value.connect({ onSuccess: onConnect, onFailure: onFailure });
 }
 function onConnect() {
-  console.log("Mqtt connected");
   sendMessage("HELLO", "/IoTmanager");
   myClient.value.subscribe("/IoTmanager/#");
 }
 function onFailure() {
-  console.log("Failed");
+
 }
 function deleteSystem(index) {
   event.stopPropagation();
@@ -657,33 +689,18 @@ function deleteSystem(index) {
 }
 const chosenSysIndex = ref(-1);
 function editSystem(index) {
-  console.log(myClient.value)
-  // event.stopPropagation();
-  // if (myClient.value !== '') {
-  //   try {
-  //     myClient.value.unsubscribe("#");
-  //     myClient.value.disconnect();
-  //     myClient.value = null;
-
-  //     chosenSysIndex.value = index;
-  //     connectionType.value = systems.value[index].mode;
-  //     systName.value = systems.value[index].name;
-  //     serialNumber.value = systems.value[index].SN;
-  //     host.value = systems.value[index].host;
-
-  //   } catch {
-  //     myClient.value = null;
-  //     console.log('zalupa')
-  //   }
-  // }
-  // else{
     chosenSysIndex.value = index;
     connectionType.value = systems.value[index].mode;
     systName.value = systems.value[index].name;
     serialNumber.value = systems.value[index].SN;
     host.value = systems.value[index].host;
-  // }
-
+    port.value = systems.value[index].port;
+    security.value = systems.value[index].auth;
+    userName.value = systems.value[index].login;
+    pass.value = systems.value[index].password;
+ }
+function saveUserAgreement(){
+  localStorage.setItem('accepted', true);
 }
 function sendMessage(payload, destination) {
   const message = new Paho.Message(payload);
@@ -696,9 +713,9 @@ function sendMessage(payload, destination) {
 }
 function isInitial() {
   const serialNum = localStorage.getItem("SN");
-  console.log(serialNum);
   return typeof serialNum == undefined;
 }
+const isSysFound = ref(false);
 function searchForNewSys() {
   sendMessage("HELLO", "/IoTmanager");
   if (sendMessage("HELLO", "/IoTmanager") == false) {
@@ -707,29 +724,23 @@ function searchForNewSys() {
   try {
     myClient.value.subscribe("#");
     myClient.value.onMessageArrived = (message) => {
-      // console.log(message);
       const recievedMessage = JSON.parse(message.payloadString);
-      console.log(recievedMessage);
       if (recievedMessage.topic) {
         let newSN = recievedMessage.topic.split("/");
         rtkSerialNum.value = newSN[2].split("-")[1];
-        console.log(rtkSerialNum.value);
 
         systName.value = rtkSerialNum.value;
         serialNumber.value = rtkSerialNum.value;
         host.value = "192.168.4.1";
         connectionType.value = "Точка доступа";
+        isSysFound.value = true;
       }
     };
   } catch {
-    console.log("error");
+
   }
 }
-function onClosed() {
-  console.log("closed");
-}
 function addSystem() {
-  console.log(systems.value, systName.value, serialNumber.value, host.value);
   let existingSystemIndex;
   if (systems.value) {
     existingSystemIndex = systems.value.findIndex(
@@ -751,17 +762,18 @@ function addSystem() {
       });
     } else {
       if (connectionType.value == "Станция (онлайн)") {
-        console.log("Станция онлайн");
         systems.value.push({
           name: `${systName.value}`,
           SN: serialNumber.value,
           host: host.value,
-          port: 8080,
+          port: port.value,
           mode: connectionType.value,
+          auth: security.value,
+          login: userName.value,
+          password: pass.value
         });
       }
       if (connectionType.value == "Станция (оффлайн)") {
-        console.log("Станция оффлайн");
         systems.value.push({
           name: `${systName.value}`,
           SN: serialNumber.value,
@@ -772,27 +784,47 @@ function addSystem() {
       }
     }
   } else {
-    console.log("System with the same properties already exists.");
   }
   localStorage.setItem("systems", JSON.stringify(systems.value));
   myClient.value.disconnect();
+  connectionType.value = "";
+  systName.value = "";
+  serialNumber.value = "";
+  host.value = "";
+  port.value = "";
+  security.value = false;
+  userName.value = "";
+  pass.value = "";
 }
 function saveEditSystem() {
-  systems.value[chosenSysIndex.value].mode = connectionType.value;
-  systems.value[chosenSysIndex.value].name = systName.value;
-  systems.value[chosenSysIndex.value].SN = serialNumber.value;
-  systems.value[chosenSysIndex.value].host = host.value;
-
-  console.log(systems.value);
+  if (connectionType.value == 'Станция (онлайн)'){
+    systems.value[chosenSysIndex.value].mode = connectionType.value;
+    systems.value[chosenSysIndex.value].name = systName.value;
+    systems.value[chosenSysIndex.value].SN = serialNumber.value;
+    systems.value[chosenSysIndex.value].host = host.value;
+    systems.value[chosenSysIndex.value].port = port.value;
+    systems.value[chosenSysIndex.value].auth = security.value;
+    systems.value[chosenSysIndex.value].login = userName.value;
+    systems.value[chosenSysIndex.value].password = pass.value;
+  }
+  else{
+    systems.value[chosenSysIndex.value].mode = connectionType.value;
+    systems.value[chosenSysIndex.value].name = systName.value;
+    systems.value[chosenSysIndex.value].SN = serialNumber.value;
+    systems.value[chosenSysIndex.value].host = host.value;
+    }
   localStorage.setItem("systems", JSON.stringify(systems.value));
   connectionType.value = "";
   systName.value = "";
   serialNumber.value = "";
   host.value = "";
+  port.value = "";
+  security.value = false;
+  userName.value = "";
+  pass.value = "";
 }
 function redoColor() {
   let a = localStorage.getItem("isDark");
-  console.log(a);
   const changeable = ref(document.getElementById("mainLayout"));
   if (!a) {
     isDark.value = false;
@@ -800,8 +832,8 @@ function redoColor() {
     labelColor.value = "text-black";
     mainColor.value = "black";
     computedClass.value = "my-card-light";
-    changeable.value.classList.remove("bg-grey-9", "text-white");
-    changeable.value.classList.add("bg-grey-2", "text-black");
+    changeable.value.classList.remove("bgc-dark-class", "text-white");
+    changeable.value.classList.add("bgc-light-class", "text-black");
   }
   if (a == true || a === "true") {
     isDark.value = false;
@@ -809,8 +841,8 @@ function redoColor() {
     labelColor.value = "text-black";
     mainColor.value = "black";
     computedClass.value = "my-card-light";
-    changeable.value.classList.remove("bg-grey-9", "text-white");
-    changeable.value.classList.add("bg-grey-2", "text-black");
+    changeable.value.classList.remove("bgc-dark-class", "text-white");
+    changeable.value.classList.add("bgc-light-class", "text-black");
   }
   if (a == false || a === "false") {
     isDark.value = true;
@@ -818,17 +850,22 @@ function redoColor() {
     labelColor.value = "text-white";
     mainColor.value = "white";
     computedClass.value = "my-card-dark";
-    changeable.value.classList.remove("bg-grey-2", "text-black");
-    changeable.value.classList.add("bg-grey-9", "text-white");
+    changeable.value.classList.remove("bgc-light-class", "text-black");
+    changeable.value.classList.add("bgc-dark-class", "text-white");
   }
-  // localStorage.setItem('isDark', isDark.value)
 }
 
 onMounted(() => {
+  console.log(localStorage.getItem('accepted'))
+  if (localStorage.getItem('accepted') == null){
+    showUserAgreement.value = true;
+  }
+  else{
+    showUserAgreement.value = false;
+  }
   systems.value = localStorage.getItem("systems")
     ? JSON.parse(localStorage.getItem("systems"))
     : [];
-  console.log(localStorage.getItem("systems"));
   redoColor();
 });
 </script>
@@ -837,7 +874,7 @@ onMounted(() => {
 .my-card-dark {
   width: 93vw;
   margin: 0 auto;
-  background-color: #777777;
+  background-color: #878787;
   flex-direction: column;
   margin-bottom: 10px;
   display: flex;
@@ -847,7 +884,7 @@ onMounted(() => {
 .my-card-light {
   width: 93vw;
   margin: 0 auto;
-  background-color: #eeeeee;
+  background-color: #ffffff;
   flex-direction: column;
   margin-bottom: 10px;
   display: flex;
@@ -878,6 +915,12 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   font-size: 16px;
+}
+.bgc-light-class {
+  background-color: #e3e3e3;
+}
+.bgc-dark-class {
+  background-color: #3c3c3b;
 }
 .cardText {
   display: flex;
@@ -986,5 +1029,14 @@ onMounted(() => {
   left: 0;
   background: rgba(0, 0, 0, 0.2);
   /* transition: width 0.3s; */
+}
+
+@font-face {
+  font-family: "HelveticaRegular";
+  src: url('../fonts/00_Helvetica/HelveticaRegular/HelveticaRegular.eot') format('eot'),
+        url('../fonts/00_Helvetica/HelveticaRegular/HelveticaRegular.ttf') format('ttf'),
+        url('../fonts/00_Helvetica/HelveticaRegular/HelveticaRegular.woff') format('woff'),
+  ;
+  font-weight: normal;
 }
 </style>

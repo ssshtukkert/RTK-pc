@@ -27,7 +27,7 @@ const routes = [
     children: [
       { path: '', component: () => import('pages/systemList.vue') },
       {path: 'RTK/:SN?/:port?/:host?/:name?/:mode?',
-      component: () => import('pages/mainScreen.vue'),
+      component: () => import('pages/mainScreen copy.vue'),
       }
     ]
   },

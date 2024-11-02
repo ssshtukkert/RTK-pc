@@ -2,8 +2,8 @@
   <q-layout>
     <q-header
     reveal
-    class="bg-teal-7 text-white"
-    style="transition: none; margin-bottom: 100px"
+    class="text-white"
+    style="transition: none; margin-bottom: 100px; background-color: #00692f;"
   >
     <q-toolbar>
       <q-toolbar-title style="display: flex;
@@ -13,19 +13,20 @@
           padding: 0; ">
         <div>
           <img class="q-mt-xs"
-            src="../components/images/logo.svg"
-            style="width: 60vw; max-height: 60px; padding-top: 5px" />
+            src="../components/images/NEVATOM_logo_NEVATOM-05.svg"
+            style="width: 60vw; max-height: 70px; " />
         </div>
-        <div style="display: flex; align-items: center">
-          <img
-            src="../components/images/sun-svgrepo-com (1).svg"
-            style="width: 12vw; max-height: 60px; margin-right: 10px"
+          <div  style="display: flex; flex-direction: column; align-items: center;">
+            <img
+            src="../components/images/g1.svg"
+            style="max-height: 35px; margin-right: 10px"
             @click="changeColor"
             v-if="isDark == 'false' || isDark == false"
           />
+
           <img
-            src="../components/images/night-moon-svgrepo-com.svg"
-            style="width: 12vw; max-height: 60px; margin-right: 10px"
+            src="../components/images/g31.svg"
+            style="max-height: 35px; margin-right: 10px"
             @click="changeColor"
             v-if="isDark == 'true' || isDark == true"
           />
@@ -34,8 +35,9 @@
       </q-toolbar-title>
     </q-toolbar>
   </q-header>
+
     <q-page-container style="margin-top: 0px; height: 100%;">
-      <router-view style="margin-top: 0px; overflow: hidden; overflow-y: hidden;"/>
+      <router-view style="margin-top: 0px; overflow: hidden; overflow-y: hidden; font-family: 'HelveticaRegular'"/>
     </q-page-container>
   </q-layout>
 </template>
@@ -63,7 +65,7 @@ if (localStorage.getItem("isDark") !== null) {
 onMounted(() => {
   // localStorage.clear();
   darkThemeMq.value = window.matchMedia("(prefers-color-scheme: light)");
-  console.log(localStorage.getItem("isDark"));
+  // console.log(localStorage.getItem("isDark"));
   if (localStorage.getItem("isDark") !== null) {
     isDark.value = localStorage.getItem("isDark");
   } else {
@@ -76,30 +78,13 @@ onMounted(() => {
       localStorage.setItem("isDark", true)
     }
   }
-  console.log(isDark.value)
+  // console.log(isDark.value)
   bus.emit('themeChanged', isDark);
 })
 
 
 provide('bus', bus)
 
-// function changeColor() {
-//   console.log(isDark.value);
-
-//   let a = localStorage.getItem("isDark");
-//   if (a && (a == false || a == "false")) {
-//     isDark.value = true;
-//     // theme.value = true;
-//     localStorage.setItem("isDark", false);
-//   }
-//   else {
-//     isDark.value = false;
-//     // theme.value = false;
-//     localStorage.setItem("isDark", true);
-//   }
-//   console.log (isDark.value)
-//   bus.emit('themeChanged', isDark);
-// }
 function changeColor() {
   console.log(isDark.value);
   if (isDark.value == false || isDark.value == "false") {
@@ -119,5 +104,13 @@ function changeColor() {
 <style>
 body{
   overflow: hidden;
+}
+@font-face {
+  font-family: "HelveticaRegular";
+  src: url('../fonts/00_Helvetica/HelveticaRegular/HelveticaRegular.eot') format('eot'),
+        url('../fonts/00_Helvetica/HelveticaRegular/HelveticaRegular.ttf') format('ttf'),
+        url('../fonts/00_Helvetica/HelveticaRegular/HelveticaRegular.woff') format('woff'),
+  ;
+  font-weight: normal;
 }
 </style>
