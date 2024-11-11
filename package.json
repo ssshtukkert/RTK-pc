@@ -2,7 +2,7 @@
   "name": "nevatom",
   "version": "0.0.1",
   "description": "A Quasar Project",
-  "productName": "Quasar App",
+  "productName": "НЕВАТОМ",
   "author": "SSY",
   "private": true,
   "scripts": {
@@ -28,7 +28,9 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.13.14",
+    "@electron/packager": "^18.3.5",
     "@quasar/app-webpack": "^3.0.0",
+    "electron": "^33.1.0",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-vue": "^9.0.0",

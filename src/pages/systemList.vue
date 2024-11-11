@@ -4,7 +4,7 @@
     class="bgc-dark-class text-white"
     id="mainLayout"
   >
-    <div style="height: auto">
+    <div style="height: auto; width: 70%; max-width: 900px; justify-self: center">
       <q-label
         style="
           padding: 10px;
@@ -18,13 +18,13 @@
       >
         <div>Выбор устройства:</div>
       </q-label>
-      <q-scroll-area style="height: 85vh">
+      <div style="height: 85vh; width: 100% ">
         <div>
         <q-card
           v-for="(system, index) in systems"
           :key="system"
           :class="computedClass"
-          style="border-radius: 15px; padding: 0"
+          style="border-radius: 15px; padding: 0; width: 90%"
         >
           <q-card-section
             style="
@@ -127,7 +127,7 @@
         >Добавить устройство</q-btn
       >
 
-            </q-scroll-area>
+            </div>
 
       <q-card
         :class="computedClass"

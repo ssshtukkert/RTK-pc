@@ -21,8 +21,7 @@
   </div>
 
     <!-- Уставки -->
-    <q-scroll-area v-if="!schedulePage && !settingsPage" style="height: 85vh">
-
+    <q-scroll-area v-if="!schedulePage && !settingsPage" style="height: 85vh; width: 80vw; justify-self: center;">
       <q-dialog v-model="confirm">
         <q-card :class="computedClass" style="border-radius: 15px" class="cardManCircle">
           <q-toolbar style="justify-content: space-between">
@@ -70,7 +69,7 @@
         </q-card>
       </q-dialog>
 
-      <div v-if="!schedulePage && !settingsPage">
+      <q-scroll-area v-if="!schedulePage && !settingsPage" style="height: 85vh; width: 100%; justify-self: center;">
         <q-label
           style="
             padding: 10px;
@@ -88,8 +87,8 @@
 
         <q-card
           v-if="ERR.val != ''"
-          class="my-card-dark cardMonocolor"
-          style="border-radius: 15px; margin-top: 20px"
+          class="my-card-dark cardMonocolor pcClass"
+          style="border-radius: 15px; margin-top: 20px;"
         >
           <q-card-section style="background-color: #ed6c05; margin-top: -10px">
             <div class="cardInside">
@@ -104,7 +103,7 @@
           </q-card-section>
         </q-card>
 
-        <q-card :class="computedClass" style="border-radius: 15px"
+        <q-card :class="computedClass " class="pcClass" style="border-radius: 15px"
           ><q-toolbar style="background-color: #ed6c05;"
             ><q-label
               style="word-wrap: break-word; font-size: 16px; font-weight: 700; color: white;"
@@ -179,7 +178,7 @@
         </q-card>
 
         <q-card
-
+          class="pcClass"
           :class="computedClass"
           style="border-radius: 15px; margin-bottom: 60px"
         >
@@ -566,9 +565,9 @@
             </div>
           </q-card-section>
         </q-card>
-      </div>
+      </q-scroll-area>
       <q-dialog v-model="showAdviceForSchedule" >
-      <q-card :class="computedClass">
+      <q-card :class="computedClass" >
 
         <q-card-section>
           <div style="text-align: center">При активированном переключателе РТК работает по заданному расписанию, при отключенном — в автоматическом режиме по заданной уставке температуры и производительности вентиляции</div>
@@ -597,13 +596,13 @@
     <!-- Расписание -->
 
     <q-scroll-area
-      style="height: 85vh"
+      style="height: 85vh; width: 100%; justify-self: center;"
       v-if="schedulePage && !set && systemIsChosen && !settingsPage"
     >
-      <div
+      <!-- <div
         v-if="schedulePage && !set && systemIsChosen && !settingsPage"
-        style="margin-bottom: 65px; width: 100%"
-      >
+        style="margin-bottom: 65px; width: 70%; justify-self: center"
+      > -->
         <q-label
           style="
             padding: 10px;
@@ -620,7 +619,7 @@
           </div></q-label
         >
 
-        <q-card :class="computedClass" style="border-radius: 15px">
+        <q-card :class="computedClass" class="pcClass" style="border-radius: 15px">
           <q-toolbar
             style="justify-content: space-between; background-color: #ed6c05"
           >
@@ -684,7 +683,7 @@
           </q-card-section>
         </q-card>
 
-        <q-card :class="computedClass" style="border-radius: 15px">
+        <q-card :class="computedClass" class="pcClass" style="border-radius: 15px" >
           <q-toolbar
             style="justify-content: space-between; background-color: #ed6c05"
           >
@@ -820,7 +819,7 @@
             </div>
           </q-card-section>
         </q-card>
-        <q-card :class="computedClass" style="border-radius: 15px">
+        <q-card :class="computedClass" class="pcClass" style="border-radius: 15px">
           <q-toolbar
             style="justify-content: space-between; background-color: #ed6c05"
           >
@@ -952,7 +951,7 @@
             </div>
           </q-card-section>
         </q-card>
-        <q-card :class="computedClass" style="border-radius: 15px">
+        <q-card :class="computedClass" class="pcClass" style="border-radius: 15px">
           <q-toolbar
             style="justify-content: space-between; background-color: #ed6c05"
           >
@@ -1085,7 +1084,7 @@
           </q-card-section>
         </q-card>
 
-        <q-card :class="computedClass" style="border-radius: 15px">
+        <q-card :class="computedClass" class="pcClass" style="border-radius: 15px">
           <q-toolbar
             style="justify-content: space-between; background-color: #ed6c05"
           >
@@ -1217,7 +1216,7 @@
             </div>
           </q-card-section>
         </q-card>
-        <q-card :class="computedClass" style="border-radius: 15px">
+        <q-card :class="computedClass" class="pcClass" style="border-radius: 15px">
           <q-toolbar
             style="justify-content: space-between; background-color: #ed6c05"
           >
@@ -1349,7 +1348,7 @@
             </div>
           </q-card-section>
         </q-card>
-        <q-card :class="computedClass" style="border-radius: 15px">
+        <q-card :class="computedClass" class="pcClass" style="border-radius: 15px">
           <q-toolbar
             style="justify-content: space-between; background-color: #ed6c05"
           >
@@ -1481,7 +1480,7 @@
             </div>
           </q-card-section>
         </q-card>
-        <q-card :class="computedClass" style="border-radius: 15px">
+        <q-card :class="computedClass" class="pcClass" style="border-radius: 15px">
           <q-toolbar
             style="justify-content: space-between; background-color: #ed6c05"
           >
@@ -1611,33 +1610,29 @@
             </div>
           </q-card-section>
         </q-card>
-      </div>
+      <!-- </div> -->
     </q-scroll-area>
 
     <!-- Параметры -->
     <q-scroll-area
-      style="height: 85vh"
+      style="height: 85vh; width: 100%; margin-bottom: 65px"
       v-if="!schedulePage && !set && systemIsChosen && settingsPage"
     >
-      <div
-        v-if="!schedulePage && !set && systemIsChosen && settingsPage"
-        style="margin-bottom: 65px"
+      <q-label
+        style="
+          padding: 10px;
+          font-family: 'HelveticaRegular';
+          font-size: 20px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        "
       >
-        <q-label
-          style="
-            padding: 10px;
-            font-family: 'HelveticaRegular';
-            font-size: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          "
-        >
           <div style="text-align: center">
             <b>Параметры</b>
           </div></q-label
         >
-        <q-card :class="computedClass" style="border-radius: 15px">
+        <q-card :class="computedClass" class="pcClass" style="border-radius: 15px">
           <q-toolbar
             style="justify-content: space-between; background-color: #ed6c05"
           >
@@ -1709,7 +1704,7 @@
             </div>
           </q-card-section>
         </q-card>
-        <q-card :class="computedClass" style="border-radius: 15px">
+        <q-card :class="computedClass" class="pcClass" style="border-radius: 15px">
           <q-toolbar
             style="justify-content: space-between; background-color: #ed6c05"
           >
@@ -1854,7 +1849,7 @@
         </q-card>
         <q-card
           v-if="port == 8883 && mode != 'Станция (оффлайн)'"
-          :class="computedClass"
+          :class="computedClass" class="pcClass"
           style="border-radius: 15px"
         >
           <q-toolbar
@@ -2136,7 +2131,7 @@
         </q-card>
 
 
-      </div>
+
       <q-dialog v-model="showAdvice" >
       <q-card :class="computedClass">
 
@@ -2160,7 +2155,7 @@
     "
     class="text-white"
   >
-    <q-toolbar style="justify-content: space-around">
+    <q-toolbar style="justify-content: center; column-gap: 60px">
       <div
         class="navbar"
         @click="
@@ -3320,6 +3315,7 @@ function waitForSubmit(target) {
   display: flex;
   align-items: center;
   flex-direction: column;
+  justify-content: center;
   /* margin-right: 15px; */
 }
 .cardInside {
@@ -3387,5 +3383,9 @@ function waitForSubmit(target) {
 }
 .dark {
   color: rgb(223, 223, 223);
+}
+.pcClass{
+  width: 70%;
+  max-width: 800px
 }
 </style>

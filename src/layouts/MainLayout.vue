@@ -5,8 +5,9 @@
     class="text-white"
     style="transition: none; margin-bottom: 100px; background-color: #00692f;"
   >
-    <q-toolbar>
+    <q-toolbar style="width: 100%;">
       <q-toolbar-title style="display: flex;
+          width: 100vw;
           height: 70px;
           align-items: center;
           justify-content: space-between;
@@ -14,9 +15,10 @@
         <div>
           <img class="q-mt-xs"
             src="../components/images/NEVATOM_logo_NEVATOM-05.svg"
-            style="width: 60vw; max-height: 70px; " />
+            style=" height: 70px; " />
         </div>
-          <div  style="display: flex; flex-direction: column; align-items: center;">
+          <div  style="display: flex; flex-direction: row; align-items: center;">
+            <div style="margin-right: 10px;">Тема: </div>
             <img
             src="../components/images/g1.svg"
             style="max-height: 35px; margin-right: 10px"
